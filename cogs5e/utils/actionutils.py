@@ -173,48 +173,31 @@ async def cast_spell(
         is_prepared = spellbook_spell.prepared
 
     if not ignore:
-        # if I'm a warlock, and I didn't have any slots of this level anyway (#655)
-        # automatically scale up to our pact slot level (or the next available level s.t. max > 0)
-        if (
-            cast_level > 0
-            and cast_level == spell.level
-            and not caster.spellbook.get_max_slots(cast_level)
-            and not caster.spellbook.can_cast(spell, cast_level)
-        ):
-            if caster.spellbook.pact_slot_level is not None:
-                cast_level = caster.spellbook.pact_slot_level
-            else:
-                cast_level = next(
-                    (sl for sl in range(cast_level, 6) if caster.spellbook.get_max_slots(sl)), cast_level
-                )  # only scale up to l5
-            args["l"] = cast_level
-
-        # can I cast this spell?
-        if not caster.spellbook.can_cast(spell, cast_level):
+        # SW5e: Powers use Force/Tech points based on power type and cast level
+        # At-will (0) = 0, Level 1 = 2, Level 2 = 3, etc. (point_cost = level + 1)
+        point_cost = cast_level + 1 if cast_level > 0 else 0
+        pool_name = "Tech Points" if getattr(spell, "power_type", "unknown") == "tech" else "Force Points"
+        
+        counter = None
+        if hasattr(caster, "get_consumable"):
+            counter = caster.get_consumable(pool_name)
+        
+        # can I cast this power?
+        if point_cost > 0 and (counter is None or counter.value < point_cost):
             embed = embeds.EmbedWithAuthor(ctx)
-            embed.title = "Cannot cast spell!"
-            if not caster.spellbook.get_slots(cast_level):
-                # out of spell slots
-                err = (
-                    f"You don't have enough level {cast_level} slots left! Use `-l <level>` to cast at a different "
-                    f"level, `{ctx.prefix}g lr` to take a long rest, or `-i` to ignore spell slots!"
-                )
-            elif spell.name not in caster.spellbook:
-                # don't know spell
-                err = (
-                    f"You don't know this spell! Use `{ctx.prefix}sb add {spell.name}` to add it to your "
-                    "spellbook, or pass `-i` to ignore restrictions."
-                )
+            embed.title = "Cannot cast power!"
+            if counter is None:
+                err = f"You don't have a '{pool_name}' counter! Use `{ctx.prefix}cc create \"{pool_name}\" -max <max>` to create one, or pass `-i` to ignore restrictions."
             else:
-                # ?
-                err = (
-                    "Not enough spell slots remaining, or spell not in known spell list!\n"
-                    f"Use `{ctx.prefix}game longrest` to restore all spell slots if this is a character, "
-                    "or pass `-i` to ignore restrictions."
-                )
+                err = f"You don't have enough {pool_name}! ({counter.value}/{counter.max} remaining, needs {point_cost}). Use `-l <level>` to cast at a different level, or `-i` to ignore point costs!"
             embed.description = err
-            if cast_level > 0:
-                embed.add_field(name="Spell Slots", value=caster.spellbook.remaining_casts_of(spell, cast_level))
+            return CastResult(embed=embed, success=False, automation_result=None)
+            
+        if spell.name not in caster.spellbook:
+            embed = embeds.EmbedWithAuthor(ctx)
+            embed.title = "Cannot cast power!"
+            err = f"You don't know this power! Use `{ctx.prefix}powerbook add \"{spell.name}\"` to add it to your powerbook, or pass `-i` to ignore restrictions."
+            embed.description = err
             return CastResult(embed=embed, success=False, automation_result=None)
 
         # #1000: is this spell prepared (soft check)?
@@ -227,7 +210,7 @@ async def cast_spell(
             if not skip_prep_conf:
                 embed = embeds.EmbedWithAuthor(
                     ctx,
-                    title=f"Cannot cast spell!",
+                    title=f"Cannot cast power!",
                     description=(
                         f"{spell.name} is not prepared! Prepare it on your character sheet and use "
                         f"`{ctx.prefix}update` to mark it as prepared, or use `-i` to ignore restrictions."
@@ -236,7 +219,9 @@ async def cast_spell(
                 return CastResult(embed=embed, success=False, automation_result=None)
 
         # use resource
-        caster.spellbook.cast(spell, cast_level, pact=not nopact)
+        if point_cost > 0 and counter:
+            counter.set(counter.value - point_cost)
+            await caster.commit(ctx)
 
     # base stat stuff
     mod_arg = args.last("mod", type_=int)
