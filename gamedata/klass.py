@@ -49,28 +49,26 @@ class Class(Sourced):
 
     @classmethod
     def from_data(cls, d):
-        levels = [[] for _ in d["levels"]]
+        # Create empty levels array (up to 20)
+        levels = [[] for _ in range(20)]
         inst = cls(
-            d["name"],
-            d["hit_points"],
-            d["proficiencies"],
-            d["equipment"],
-            ClassTable.from_data(d["table"]),
+            d.get("name", "Unknown Class"),
+            f"1d{d.get('hitDiceDieType', 8)}",
+            "", # SW5e doesn't provide these natively yet
+            "",
+            ClassTable.from_data({"headers": [], "levels": [[] for _ in range(20)]}),
             levels,
             subclasses=[],
-            subclass_title=d["subclass_title"],
-            subclass_feature_levels=d["subclass_feature_levels"],
+            subclass_title=d.get("archetypeFlavorName", "Archetype"),
+            subclass_feature_levels=[],
             optional_features=[],
-            description=d.get("description"),
-            source=d["source"],
-            entity_id=d["id"],
-            page=d["page"],
-            url=d["url"],
-            is_free=d["isFree"],
+            description=d.get("flavorText"),
+            source=d.get("contentSource", "PHB"),
+            entity_id=d.get("name"),
+            page=0,
+            url="",
+            is_free=True,
         )
-        inst.subclasses = [Subclass.from_data(s, inst) for s in d["subclasses"]]
-        inst.levels = [[ClassFeature.from_data(cf, inst) for cf in lvl] for lvl in d["levels"]]
-        inst.optional_features = [ClassFeature.from_data(ocf, inst) for ocf in d["optional_features"]]
         return inst
 
 

@@ -1168,6 +1168,17 @@ class InitTracker(commands.Cog):
         desc = args.last("desc")
         hidden = args.last("h", False, bool)
 
+        # SW5e specific conditions
+        lower_name = effect_name.lower()
+        if lower_name == "shocked":
+            if "sdis" not in args:
+                args["sdis"] = ["dex"]
+            if not desc: 
+                desc = "Speed halved, cannot take reactions."
+        elif lower_name == "ignited":
+            if not desc: 
+                desc = "Takes 1d4 fire damage at the start of each of its turns. It or a creature within 5ft can use an action to douse the flames."
+
         if parent is not None:
             parent = parent.split("|", 1)
             if not len(parent) == 2:

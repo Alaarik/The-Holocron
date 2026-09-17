@@ -154,65 +154,71 @@ class Monster(StatBlock, Sourced):
 
     @classmethod
     def from_data(cls, d):
-        ability_scores = BaseStats.from_dict(d["ability_scores"])
-        saves = Saves.from_dict(d["saves"])
-        skills = Skills.from_dict(d["skills"])
-        display_resists = Resistances.from_dict(d["display_resists"], smart=False)
-        traits = [Trait(**t) for t in d["traits"]]
-        actions = [Trait(**t) for t in d["actions"]]
-        reactions = [Trait(**t) for t in d["reactions"]]
-        legactions = [Trait(**t) for t in d["legactions"]]
-        bonus_actions = [Trait(**t) for t in d.get("bonus_actions", [])]
-        mythic_actions = [Trait(**t) for t in d.get("mythic_actions", [])]
-        resistances = Resistances.from_dict(d["resistances"])
-        attacks = AttackList.from_dict(d["attacks"])
-        if d["spellbook"] is not None:
-            spellcasting = MonsterSpellbook.from_dict(d["spellbook"])
-        else:
-            spellcasting = None
+        # SW5e mappings
+        ability_scores = BaseStats.from_dict({
+            "strength": d.get("strength", 10),
+            "dexterity": d.get("dexterity", 10),
+            "constitution": d.get("constitution", 10),
+            "intelligence": d.get("intelligence", 10),
+            "wisdom": d.get("wisdom", 10),
+            "charisma": d.get("charisma", 10),
+        })
+        saves = Saves.from_dict({}) # SW5e handles saves dynamically or in traits sometimes
+        skills = Skills.from_dict({}) # Needs proper parsing for production, but stubbed for now
+        display_resists = Resistances.from_dict({}, smart=False)
+        resistances = Resistances.from_dict({})
+        
+        traits, actions, reactions, legactions = [], [], [], []
+        if "behaviors" in d:
+            for b in d["behaviors"]:
+                t = Trait(b.get("name", ""), b.get("description", ""))
+                bt = b.get("monsterBehaviorType", "")
+                if bt == "Trait": traits.append(t)
+                elif bt == "Action": actions.append(t)
+                elif bt == "Reaction": reactions.append(t)
+                elif bt == "Legendary": legactions.append(t)
+                
+        attacks = AttackList()
+        spellcasting = None
         return cls(
-            d["name"],
-            d["size"],
-            d["race"],
-            d["alignment"],
-            d["ac"],
-            d["armortype"],
-            d["hp"],
-            d["hitdice"],
-            d["speed"],
+            d.get("name", "Unknown"),
+            d.get("size", "Medium"),
+            ", ".join(d.get("types", [])),
+            d.get("alignment", "unaligned"),
+            d.get("armorClass", 10),
+            d.get("armorType", ""),
+            d.get("hitPoints", 10),
+            d.get("hitPointRoll", "2d8"),
+            str(d.get("speed", 30)),
             ability_scores,
             saves,
             skills,
-            d["senses"],
+            ", ".join(d.get("senses", [])),
             display_resists,
-            d["condition_immune"],
-            d["languages"],
-            d["cr"],
-            d["xp"],
+            d.get("conditionImmunities", []),
+            d.get("languages", []),
+            d.get("challengeRating", "0"),
+            d.get("experiencePoints", 0),
             traits=traits,
             actions=actions,
             reactions=reactions,
             legactions=legactions,
-            bonus_actions=bonus_actions,
-            mythic_actions=mythic_actions,
-            la_per_round=d["la_per_round"],
-            passiveperc=d["passiveperc"],
-            hide_cr=d.get("hide_cr"),
-            # augmented
+            bonus_actions=[],
+            mythic_actions=[],
+            la_per_round=3,
+            passiveperc=10,
+            hide_cr=False,
             resistances=resistances,
             attacks=attacks,
-            proper=d["proper"],
-            image_url=d["image_url"],
+            proper=False,
+            image_url="",
             spellcasting=spellcasting,
-            token_free_fp=d["token_free"],
-            token_sub_fp=d["token_sub"],
-            # sourcing
-            source=d["source"],
-            entity_id=d["id"],
-            page=d["page"],
-            url=d["url"],
-            is_free=d["isFree"],
-            is_legacy=d.get("isLegacy", False),
+            source=d.get("contentSource", "PHB"),
+            entity_id=d.get("name"),
+            page=0,
+            url="",
+            is_free=True,
+            is_legacy=False,
         )
 
     @classmethod

@@ -66,6 +66,55 @@ async def run_attack(
     }
     args.update_nx(arg_defaults)
 
+    # SW5e Weapon Properties
+    is_rapid = args.last("rapid", type_=bool)
+    is_burst = args.last("burst", type_=bool)
+
+    if is_rapid or is_burst:
+        import copy
+        attack.automation = copy.deepcopy(attack.automation)
+
+    if is_rapid:
+        # Rapid: Roll attack with disadvantage, double damage
+        args.update_nx({"dis": ["True"]})
+        if not args.last("title"):
+            embed.title += " (Rapid)"
+        
+        from cogs5e.models.automation.effects.damage import Damage
+        def double_damage(effects):
+            for effect in effects:
+                if isinstance(effect, Damage):
+                    effect.damage = f"({effect.damage}) + ({effect.damage})"
+                elif hasattr(effect, 'effects'):
+                    double_damage(effect.effects)
+                elif hasattr(effect, 'on_true'):
+                    double_damage(effect.on_true)
+                    double_damage(effect.on_false)
+        double_damage(attack.automation.effects)
+
+    if is_burst:
+        # Burst: Change attack rolls into Dex saves
+        if not args.last("title"):
+            embed.title += " (Burst)"
+            
+        from cogs5e.models.automation.effects.attack import Attack as AttackEffect
+        from cogs5e.models.automation.effects.save import Save as SaveEffect
+        def convert_attack_to_save(effects):
+            for i, effect in enumerate(effects):
+                if isinstance(effect, AttackEffect):
+                    effects[i] = SaveEffect(
+                        stat="dex",
+                        fail=effect.hit,
+                        success=effect.miss,
+                        dc="8+prof+mod"
+                    )
+                elif hasattr(effect, 'effects'):
+                    convert_attack_to_save(effect.effects)
+                elif hasattr(effect, 'on_true'):
+                    convert_attack_to_save(effect.on_true)
+                    convert_attack_to_save(effect.on_false)
+        convert_attack_to_save(attack.automation.effects)
+
     result = await run_automation(
         ctx, embed, args, caster, attack.automation, targets, combat, **attack.__run_automation_kwargs__
     )

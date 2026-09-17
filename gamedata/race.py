@@ -22,20 +22,20 @@ class Race(Sourced):
     @classmethod
     def from_data(cls, d):
         inst = cls(
-            d["name"],
-            d["size"],
-            d["speed"],
+            d.get("name", "Unknown Species"),
+            d.get("size", "Medium"),
+            "30", # Speed often in traits, assume 30
             traits=[],
-            source=d["source"],
-            entity_id=d["id"],
-            page=d["page"],
-            url=d["url"],
-            is_free=d["isFree"],
-            is_legacy=d.get("isLegacy", False),
+            source=d.get("contentSource", "PHB"),
+            entity_id=d.get("name"),
+            page=0,
+            url="",
+            is_free=True,
+            is_legacy=False,
         )
-        inst.traits = [RaceFeature.from_data(t, inst) for t in d["traits"]]
+        if "traits" in d:
+            inst.traits = [RaceFeature.from_data(t, inst) for t in d["traits"]]
         return inst
-
 
 class SubRace(Race):
     entity_type = "subrace"
@@ -56,21 +56,21 @@ class RaceFeature(LimitedUseGrantorMixin, DescribableMixin, Sourced):
     @classmethod
     def from_data(cls, d, source_race, **kwargs):
         inst = cls(
-            d["name"],
-            d["text"],
+            d.get("name", "Unknown Feature"),
+            d.get("description", ""),
             options=[],
-            inherited=d.get("inherited", False),
-            entity_id=d["id"],
-            page=d["page"],
-            source=d.get("source", source_race.source),
-            is_free=d.get("isFree", source_race.is_free),
-            is_legacy=d.get("isLegacy", source_race.is_legacy),
-            url=d.get("url", source_race.raw_url),
-            entitlement_entity_id=d.get("entitlementEntityId", source_race.entity_id),
-            entitlement_entity_type=d.get("entitlementEntityType", source_race.entity_type),
+            inherited=False,
+            entity_id=d.get("name"),
+            page=0,
+            source=source_race.source,
+            is_free=source_race.is_free,
+            is_legacy=source_race.is_legacy,
+            url=source_race.raw_url,
+            entitlement_entity_id=source_race.entity_id,
+            entitlement_entity_type=source_race.entity_type,
             **kwargs,
         )
-        inst.options = [RaceFeatureOption.from_race_feature(o, inst) for o in d["options"]]
+        # sw5e doesn't have options natively inside traits yet
         inst.initialize_limited_use(d)
         return inst
 

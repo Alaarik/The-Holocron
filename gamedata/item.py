@@ -26,20 +26,38 @@ class Item(DescribableMixin, Sourced, abc.ABC):
 
     @classmethod
     def from_data(cls, d):
-        return cls(
-            d["name"],
-            d["desc"],
-            d["attunement"],
-            d.get("meta"),
-            d.get("image"),
+        # Determine item entity_type and type_id dynamically based on equipmentCategory
+        cat = d.get("equipmentCategory", "Unknown")
+        entity_type = "magic-item"
+        type_id = 112130694
+        if cat == "Weapon":
+            entity_type = "weapon"
+            type_id = 1782728300
+        elif cat == "Armor":
+            entity_type = "armor"
+            type_id = 701257905
+        else:
+            entity_type = "adventuring-gear"
+            type_id = 2103445194
+            
+        instance = cls(
+            d.get("name", "Unknown Item"),
+            d.get("description") or "",
+            False, # no attunement field natively in sw5e equipment yet
+            None,
+            None,
             homebrew=False,
-            source=d["source"],
-            entity_id=d["id"],
-            page=d["page"],
-            url=d["url"],
-            is_free=d["isFree"],
-            is_legacy=d.get("isLegacy", False),
+            source=d.get("contentSource", "PHB"),
+            entity_id=d.get("name"),
+            page=0,
+            url="",
+            is_free=True,
+            is_legacy=False,
         )
+        instance.entity_type = entity_type
+        instance.type_id = type_id
+        instance.properties_map = d.get("propertiesMap") or {}
+        return instance
 
     @classmethod
     def from_homebrew(cls, d, source):
