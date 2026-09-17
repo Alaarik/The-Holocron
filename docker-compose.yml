@@ -12,6 +12,12 @@ services:
       - redis
     env_file:
       - ./docker/env
+    volumes:
+      - ./cogs5e:/home/avrae/cogs5e
+      - ./cogsmisc:/home/avrae/cogsmisc
+      - ./dbot.py:/home/avrae/dbot.py
+      - ./res:/home/avrae/res
+      - ./utils:/home/avrae/utils
     environment:
       DBOT_ARGS: test
       ENVIRONMENT: development

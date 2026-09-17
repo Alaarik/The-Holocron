@@ -20,6 +20,7 @@ class SW5ESheetParser:
     def __init__(self, character_id=None, json_data=None):
         self.character_id = character_id
         self.json_data = json_data
+        self.url = character_id or "json_upload"
         
     async def load_character(self, ctx, args) -> Character:
         if self.json_data:
@@ -41,7 +42,7 @@ class SW5ESheetParser:
         level_map = {}
         for c in char_data.get("classes", []):
             level_map[c.get("name", "Unknown")] = c.get("levels", 0)
-        levels = Levels.from_dict(level_map)
+        levels = Levels(classes=level_map)
         level = sum(level_map.values())
         
         prof_bonus = 2 + ((max(level, 1) - 1) // 4)

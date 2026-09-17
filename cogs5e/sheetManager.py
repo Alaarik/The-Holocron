@@ -988,7 +988,7 @@ class SheetManager(commands.Cog):
             await loading.edit(content=f"Error loading character: {eep}")
             return
         except Exception as eep:
-            log.warning(f"Error importing character {parser.url}")
+            log.warning(f"Error importing character {getattr(parser, 'url', 'Unknown')}")
             log.warning(traceback.format_exc())
             await loading.edit(content=f"Error loading character: {eep}")
             return
