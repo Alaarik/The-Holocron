@@ -58,6 +58,7 @@ COGS = (
     "cogs5e.initiative",
     "cogs5e.sheetManager",
     "cogs5e.combat_slash",
+    "cogs5e.init_slash",
     "cogsmisc.customization",
     "cogsmisc.core",
     "cogsmisc.stats",
