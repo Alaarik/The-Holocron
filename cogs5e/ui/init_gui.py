@@ -76,7 +76,7 @@ class CombatDashboardView(disnake.ui.View):
         except Exception:
             return await interaction.response.send_message("No active combat found.", ephemeral=True)
             
-        if combat.dm_id != interaction.author.id and not getattr(interaction.channel.permissions_for(interaction.author), 'manage_messages', False):
+        if combat.dm_id != interaction.author.id and not interaction.permissions.manage_messages:
             return await interaction.response.send_message("You are not the DM of this combat.", ephemeral=True)
             
         await interaction.response.defer()
@@ -140,7 +140,7 @@ class CombatDashboardView(disnake.ui.View):
         from cogs5e.initiative import Combat
         try:
             combat = await Combat.from_ctx(interaction)
-            if combat.dm_id != interaction.author.id and not getattr(interaction.channel.permissions_for(interaction.author), 'manage_messages', False):
+            if combat.dm_id != interaction.author.id and not interaction.permissions.manage_messages:
                 return await interaction.response.send_message("You are not the DM of this combat.", ephemeral=True)
         except Exception:
             return await interaction.response.send_message("No active combat found.", ephemeral=True)
@@ -171,12 +171,12 @@ class CombatDashboardView(disnake.ui.View):
         except Exception:
             return await interaction.response.send_message("No active combat found.", ephemeral=True)
             
-        if combat.dm_id != interaction.author.id and not getattr(interaction.channel.permissions_for(interaction.author), 'manage_messages', False):
+        if combat.dm_id != interaction.author.id and not interaction.permissions.manage_messages:
             return await interaction.response.send_message("You are not the DM of this combat.", ephemeral=True)
             
         await interaction.response.defer()
         try:
-            await combat.delete()
+            await combat.end()
         except:
             pass
             

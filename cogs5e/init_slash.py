@@ -57,7 +57,7 @@ class InitSlashCog(commands.Cog):
         except Exception:
             return await inter.followup.send("No active combat found.", ephemeral=True)
             
-        if combat.dm_id != inter.author.id and not getattr(inter.channel.permissions_for(inter.author), 'manage_messages', False):
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
             return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
             
         try:
@@ -87,7 +87,7 @@ class InitSlashCog(commands.Cog):
         except Exception:
             return await inter.followup.send("No active combat found.", ephemeral=True)
             
-        if combat.dm_id != inter.author.id and not getattr(inter.channel.permissions_for(inter.author), 'manage_messages', False):
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
             return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
             
         target_combatant = combat.get_combatant(target)
@@ -133,7 +133,7 @@ class InitSlashCog(commands.Cog):
         except:
             return await inter.followup.send("No active combat found.", ephemeral=True)
             
-        if combat.dm_id != inter.author.id and not getattr(inter.channel.permissions_for(inter.author), 'manage_messages', False):
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
             return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
             
         target_combatant = combat.get_combatant(target)
@@ -291,7 +291,7 @@ class InitSlashCog(commands.Cog):
         except Exception as e:
             return await inter.followup.send("No active combat found.", ephemeral=True)
             
-        if combat.dm_id != inter.author.id and not getattr(inter.channel.permissions_for(inter.author), 'manage_messages', False):
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
             return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
             
         # Import the madd function from initiative cog
