@@ -76,7 +76,7 @@ class CombatDashboardView(disnake.ui.View):
         except Exception:
             return await interaction.response.send_message("No active combat found.", ephemeral=True)
             
-        if not combat.can_edit(interaction.author):
+        if combat.dm_id != interaction.author.id and not getattr(interaction.channel.permissions_for(interaction.author), 'manage_messages', False):
             return await interaction.response.send_message("You are not the DM of this combat.", ephemeral=True)
             
         await interaction.response.defer()
@@ -125,7 +125,7 @@ class CombatDashboardView(disnake.ui.View):
             # Use their dex mod for init, handling adv/dis if they use args. Here we just do normal roll for button.
             r = roll(f"1d20+{character.stats.get_mod('dex')}")
             combatant = PlayerCombatant.from_character(character, interaction, combat, interaction.author.id, r.total, False)
-            await combat.add_combatant(combatant, interaction)
+            combat.add_combatant(combatant)
             await combat.commit(interaction)
             await interaction.followup.send(f"{character.name} joined combat! (Initiative: {r.total})")
             
@@ -140,7 +140,7 @@ class CombatDashboardView(disnake.ui.View):
         from cogs5e.initiative import Combat
         try:
             combat = await Combat.from_ctx(interaction)
-            if not combat.can_edit(interaction.author):
+            if combat.dm_id != interaction.author.id and not getattr(interaction.channel.permissions_for(interaction.author), 'manage_messages', False):
                 return await interaction.response.send_message("You are not the DM of this combat.", ephemeral=True)
         except Exception:
             return await interaction.response.send_message("No active combat found.", ephemeral=True)
@@ -171,7 +171,7 @@ class CombatDashboardView(disnake.ui.View):
         except Exception:
             return await interaction.response.send_message("No active combat found.", ephemeral=True)
             
-        if not combat.can_edit(interaction.author):
+        if combat.dm_id != interaction.author.id and not getattr(interaction.channel.permissions_for(interaction.author), 'manage_messages', False):
             return await interaction.response.send_message("You are not the DM of this combat.", ephemeral=True)
             
         await interaction.response.defer()
