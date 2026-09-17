@@ -7,7 +7,7 @@ import math
 from cogs5e.models.errors import ExternalImportError
 from cogs5e.models.sheet.base import BaseStats, Saves, Skills, Levels
 from cogs5e.models.sheet.resistance import Resistances
-from cogs5e.models.sheet.spellcasting import Spellbook
+from cogs5e.models.sheet.spellcasting import Spellbook, SpellbookSpell
 from cogs5e.models.sheet.attack import AttackList, Attack, old_to_automation
 from cogs5e.models.character import Character
 from cogs5e.models.sheet.coinpurse import Coinpurse
@@ -189,14 +189,14 @@ class SW5ESheetParser:
                     attacks_list.append(Attack("Ranger's Quarry", old_to_automation(damage=f"1d{die}", details="Ranger's Quarry extra damage.")))
                 
             for p in c.get("forcePowers", []):
-                spellbook.add_spell(p.lower(), strict=False)
+                spellbook.spells.append(SpellbookSpell(p.lower(), strict=False))
             for p in c.get("techPowers", []):
-                spellbook.add_spell(p.lower(), strict=False)
+                spellbook.spells.append(SpellbookSpell(p.lower(), strict=False))
                 
         for p in char_data.get("customForcePowers", []):
-            spellbook.add_spell(p.get("name", "").lower(), strict=False)
+            spellbook.spells.append(SpellbookSpell(p.get("name", "").lower(), strict=False))
         for p in char_data.get("customTechPowers", []):
-            spellbook.add_spell(p.get("name", "").lower(), strict=False)
+            spellbook.spells.append(SpellbookSpell(p.get("name", "").lower(), strict=False))
     
         if max_force > 0:
             force_mod = max(stats.get_mod("wis"), stats.get_mod("cha"))
