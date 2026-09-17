@@ -5,7 +5,8 @@ import json
 import math
 
 from cogs5e.models.errors import ExternalImportError
-from cogs5e.models.sheet.base import BaseStats, Saves, Skills, Resistances, Levels
+from cogs5e.models.sheet.base import BaseStats, Saves, Skills, Levels
+from cogs5e.models.sheet.resistance import Resistances
 from cogs5e.models.sheet.spellcasting import Spellbook
 from cogs5e.models.sheet.attack import AttackList, Attack, old_to_automation
 from cogs5e.models.character import Character
