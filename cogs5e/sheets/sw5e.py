@@ -2,11 +2,12 @@ import logging
 import re
 import aiohttp
 import json
+import math
 
 from cogs5e.models.errors import ExternalImportError
 from cogs5e.models.sheet.base import BaseStats, Saves, Skills, Resistances, Levels
 from cogs5e.models.sheet.spellcasting import Spellbook
-from cogs5e.models.sheet.attack import AttackList
+from cogs5e.models.sheet.attack import AttackList, Attack, old_to_automation
 from cogs5e.models.character import Character
 from cogs5e.models.sheet.coinpurse import Coinpurse
 
@@ -72,9 +73,16 @@ class SW5ESheetParser:
         resistances = Resistances.from_dict({})
         spellbook = Spellbook()
         consumables = []
-        attacks = AttackList.from_dict([])
+        attacks_list = []
         coinpurse = Coinpurse()
         
+        def get_die_size(lvl):
+            if lvl >= 17: return 12
+            if lvl >= 13: return 10
+            if lvl >= 9: return 8
+            if lvl >= 5: return 6
+            return 4
+            
         max_force = 0
         max_tech = 0
         for c in char_data.get("classes", []):
@@ -98,13 +106,21 @@ class SW5ESheetParser:
                     "reset": reset
                 })
 
-            if cname == "Guardian" and clevel >= 1:
-                uses = 2
-                if clevel >= 5: uses = 3
-                if clevel >= 9: uses = 4
-                if clevel >= 13: uses = 5
-                if clevel >= 17: uses = 6
-                add_consumable("Channel the Force", uses, "short")
+            if cname == "Guardian":
+                if clevel >= 1:
+                    uses = 2
+                    if clevel >= 5: uses = 3
+                    if clevel >= 9: uses = 4
+                    if clevel >= 13: uses = 5
+                    if clevel >= 17: uses = 6
+                    add_consumable("Channel the Force", uses, "short")
+                if clevel >= 2:
+                    max_dice = 2
+                    if clevel >= 5: max_dice = 3
+                    if clevel >= 9: max_dice = 4
+                    if clevel >= 13: max_dice = 5
+                    if clevel >= 17: max_dice = 6
+                    attacks_list.append(Attack("Force-Empowered Strikes", old_to_automation(damage="1d8", details=f"Force-Empowered Strikes additional damage. Maximum limit: {max_dice}d8. (Costs 1 Force Point per d8)")))
                 
             elif cname == "Berserker" and clevel >= 1:
                 uses = 2
@@ -135,6 +151,8 @@ class SW5ESheetParser:
                     if clevel >= 13: uses = 5
                     if clevel >= 17: uses = 6
                     add_consumable("Potent Aptitude", uses, "short")
+                    die = get_die_size(clevel)
+                    attacks_list.append(Attack("Potent Aptitude", old_to_automation(damage=f"1d{die}", details="Potent Aptitude Die")))
                 if clevel >= 2:
                     add_consumable("Infuse Item", 1, "long")
                     
@@ -144,15 +162,26 @@ class SW5ESheetParser:
                     if clevel >= 9: uses = 3
                     if clevel >= 17: uses = 4
                     add_consumable("Ideal Manifests", uses, "short")
+                    die = get_die_size(clevel)
+                    attacks_list.append(Attack("Kinetic Combat", old_to_automation(damage=f"1d{die}", details="Kinetic Combat extra damage / effect die")))
                     
             elif cname == "Scholar":
                 if clevel >= 1:
-                    # Scholar dice scale as 3 + (level-1)//2
                     uses = 3 + ((clevel - 1) // 2)
                     add_consumable("Superiority Dice", uses, "short")
+                    die = get_die_size(clevel)
+                    attacks_list.append(Attack("Superiority Die", old_to_automation(damage=f"1d{die}", details="Superiority Die Roll")))
                     
-            elif cname == "Operative" and clevel >= 3:
-                add_consumable("Bad Feeling", 1, "long")
+            elif cname == "Operative":
+                if clevel >= 1:
+                    attacks_list.append(Attack("Sneak Attack", old_to_automation(damage=f"{math.ceil(clevel/2)}d6", details="Sneak Attack extra damage.")))
+                if clevel >= 3:
+                    add_consumable("Bad Feeling", 1, "long")
+                    
+            elif cname == "Scout":
+                if clevel >= 1:
+                    die = get_die_size(clevel)
+                    attacks_list.append(Attack("Ranger's Quarry", old_to_automation(damage=f"1d{die}", details="Ranger's Quarry extra damage.")))
                 
             for p in c.get("forcePowers", []):
                 spellbook.add_spell(p.lower(), strict=False)
@@ -181,6 +210,8 @@ class SW5ESheetParser:
                 "maxv": max_tech,
                 "value": max_tech - current.get("techPointsUsed", 0)
             })
+            
+        attacks = AttackList(attacks_list)
             
         return Character(
             owner=str(ctx.author.id),
