@@ -404,12 +404,12 @@ class GameTrack(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.group(invoke_without_command=True, name="spellbook", aliases=["sb"])
-    async def spellbook(self, ctx, *args):
+    @commands.group(invoke_without_command=True, name="powerbook", aliases=["pb", "spellbook", "sb"])
+    async def powerbook(self, ctx, *args):
         """
-        Commands to display a character's known spells and metadata.
+        Commands to display a character's known powers and metadata.
         __Valid Arguments__
-        all - Display all of a character's known spells, including unprepared ones.
+        all - Display all of a character's known powers, including unprepared ones.
         """
         await ctx.trigger_typing()
 
@@ -501,16 +501,16 @@ class GameTrack(commands.Cog):
             ep.set_footer(value=" ".join(footer_out))
         await ep.send_to(ctx)
 
-    @spellbook.command(name="add")
-    async def spellbook_add(self, ctx, spell_name, *, args=""):
+    @powerbook.command(name="add")
+    async def powerbook_add(self, ctx, spell_name, *, args=""):
         """
-        Adds a spell to the spellbook override.
+        Adds a power to the powerbook override.
 
         __Valid Arguments__
         *Note: These arguments do not support calculations.*
-        -dc <dc> - When cast, this spell always uses this DC.
-        -b <sab> - When cast, this spell always uses this spell attack bonus.
-        -mod <mod> - When cast, this spell always uses this as the value of its casting stat (usually for healing spells).
+        -dc <dc> - When cast, this power always uses this DC.
+        -b <sab> - When cast, this power always uses this power attack bonus.
+        -mod <mod> - When cast, this power always uses this as the value of its casting stat (usually for healing powers).
         """  # noqa: E501
         spell = await select_spell_full(ctx, spell_name)
         character: Character = await ctx.get_character()
@@ -521,12 +521,12 @@ class GameTrack(commands.Cog):
         mod = args.last("mod", type_=int)
         character.add_known_spell(spell, dc, sab, mod)
         await character.commit(ctx)
-        await ctx.send(f"{spell.name} added to known spell list!")
+        await ctx.send(f"{spell.name} added to known power list!")
 
-    @spellbook.command(name="remove")
-    async def spellbook_remove(self, ctx, *, spell_name):
+    @powerbook.command(name="remove")
+    async def powerbook_remove(self, ctx, *, spell_name):
         """
-        Removes a spell from the spellbook override.
+        Removes a power from the powerbook override.
         """
         character: Character = await ctx.get_character()
 
@@ -535,15 +535,15 @@ class GameTrack(commands.Cog):
             character.overrides.spells,
             spell_name,
             lambda s: s.name,
-            message="To remove a spell on your sheet, just delete it there and `!update`.",
+            message="To remove a power on your sheet, just delete it there and `!update`.",
         )
         character.remove_known_spell(spell_to_remove)
 
         await character.commit(ctx)
-        await ctx.send(f"{spell_to_remove.name} removed from spellbook override.")
+        await ctx.send(f"{spell_to_remove.name} removed from powerbook override.")
 
-    @spellbook.command(name="remove_all", aliases=["removeall"])
-    async def spellbook_remove_all(self, ctx):
+    @powerbook.command(name="remove_all", aliases=["removeall"])
+    async def powerbook_remove_all(self, ctx):
         """
         Removes all spell overrides from the spellbook.
         """
@@ -833,16 +833,17 @@ class GameTrack(commands.Cog):
             await self._rest(ctx, "all", *args)
 
     @commands.command(
+        aliases=["cast"],
         pass_context=True,
         help=f"""
-        Casts a spell.
+        Casts a power.
         __**Valid Arguments**__
         {VALID_SPELLCASTING_ARGS}
     
         {VALID_AUTOMATION_ARGS}
         """,
     )
-    async def cast(self, ctx, spell_name, *, args=""):
+    async def power(self, ctx, spell_name, *, args=""):
         await try_delete(ctx.message)
 
         char: Character = await ctx.get_character()

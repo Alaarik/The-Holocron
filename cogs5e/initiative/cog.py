@@ -1501,29 +1501,30 @@ class InitTracker(commands.Cog):
             await gamelog.send_save(ctx, combatant.character, result.skill_name, result.rolls)
 
     @init.command(
+        aliases=["cast"],
         help=f"""
-        Casts a spell against another combatant.
+        Casts a power against another combatant.
         __**Valid Arguments**__
         {VALID_SPELLCASTING_ARGS}
 
         {VALID_AUTOMATION_ARGS}
         """
     )
-    async def cast(self, ctx, spell_name, *, args=""):
+    async def power(self, ctx, spell_name, *, args=""):
         return await self._cast(ctx, None, spell_name, args)
 
     @init.command(
-        name="offturncast",
-        aliases=["rc", "reactcast"],
+        name="offturnpower",
+        aliases=["rp", "reactpower", "offturncast", "rc", "reactcast"],
         help=f"""
-        Casts a spell as another combatant.
+        Casts a power as another combatant.
         __**Valid Arguments**__
         {VALID_SPELLCASTING_ARGS}
         
         {VALID_AUTOMATION_ARGS}
         """,
     )
-    async def reactcast(self, ctx, combatant_name, spell_name, *, args=""):
+    async def reactpower(self, ctx, combatant_name, spell_name, *, args=""):
         return await self._cast(ctx, combatant_name, spell_name, args)
 
     async def _cast(self, ctx, combatant_name, spell_name, args):

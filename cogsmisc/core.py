@@ -51,8 +51,8 @@ class Core(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx):
-        """Prints a link to invite Avrae to your server."""
-        await ctx.send("You can invite Avrae to your server here:\n<https://invite.avrae.io>")
+        """Prints a link to invite The Holocron to your server."""
+        await ctx.send("You can invite The Holocron to your server here:\n<https://sw5e.com>")
 
     @commands.group(invoke_without_command=True)
     async def changelog(self, ctx):
@@ -104,13 +104,11 @@ class Core(commands.Cog):
 
         embed = disnake.Embed(
             description=(
-                "Avrae, a bot to streamline D&D 5e online.\n"
-                "Check out the latest release notes "
-                "[here](https://github.com/avrae/avrae/releases/latest)."
+                "The Holocron, a bot to streamline Star Wars 5e online.\n"
             )
         )
-        embed.title = "Invite Avrae to your server!"
-        embed.url = "https://invite.avrae.io"
+        embed.title = "Invite The Holocron to your server!"
+        embed.url = "https://sw5e.com"
         embed.colour = 0x7289DA
         embed.add_field(name="Uptime", value=str(timedelta(seconds=round(time.monotonic() - self.start_time))))
         motd = random.choice([

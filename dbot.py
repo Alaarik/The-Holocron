@@ -225,12 +225,8 @@ class Avrae(commands.AutoShardedBot):
 
 
 desc = (
-    "Play D&D over Discord! Featuring advanced dice, initiative tracking, D&D Beyond integration, and more, you'll"
-    " never need another D&D bot.\nView the full list of commands [here](https://avrae.io/commands)!\nInvite Avrae to"
-    " your server [here](https://invite.avrae.io)!\nJoin the official development server"
-    " [here](https://support.avrae.io)!\n[Privacy"
-    " Policy](https://company.wizards.com/en/legal/wizards-coasts-privacy-policy) | [Terms of"
-    " Use](https://company.wizards.com/en/legal/terms)"
+    "Play Star Wars 5e over Discord! Featuring advanced dice, initiative tracking, character integrations, and more, you'll"
+    " never need another SW5e bot.\nWelcome to The Holocron!"
 )
 intents = disnake.Intents(
     guilds=True,

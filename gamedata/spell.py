@@ -55,6 +55,10 @@ class Spell(AutomatibleMixin, DescribableMixin, Sourced):
         self.higherlevels = higherlevels
         self.concentration = concentration
         self.image = image
+        
+        # SW5e attributes
+        self.power_type = school.lower() # "tech" or "force"
+        self.point_cost = level + 1 if level > 0 else 0
 
         if self.concentration and "Concentration" not in self.duration:
             self.duration = f"Concentration, up to {self.duration}"
@@ -62,26 +66,26 @@ class Spell(AutomatibleMixin, DescribableMixin, Sourced):
     @classmethod
     def from_data(cls, d):  # local JSON
         return cls(
-            d["name"],
-            d["level"],
-            d["school"],
-            d["casttime"],
-            d["range"],
-            d["components"],
-            d["duration"],
-            d["description"],
-            rulesVersion=d["rulesVersion"],
+            d.get("name", "Unknown Power"),
+            d.get("level", 0),
+            d.get("powerType", "Unknown"),  # maps to school
+            d.get("castingPeriodText", "1 action"),
+            d.get("range", "Self"),
+            d.get("forceAlignment", "None"),  # using alignment as components proxy
+            d.get("duration", "Instantaneous"),
+            d.get("description", ""),
+            rulesVersion="SW5e",
             homebrew=False,
-            classes=d["classes"],
-            subclasses=d["subclasses"],
-            ritual=d["ritual"],
-            higherlevels=d["higherlevels"],
-            concentration=d["concentration"],
-            source=d["source"],
-            entity_id=d["id"],
-            page=d["page"],
-            url=d["url"],
-            is_free=d["isFree"],
+            classes=[],  # SW5e doesn't explicitly restrict powers by class in this payload
+            subclasses=[],
+            ritual=False,
+            higherlevels=d.get("higherLevelDescription"),
+            concentration=d.get("concentration", False),
+            source=d.get("contentSource", "PHB"),
+            entity_id=d.get("rowKey", d.get("name")),
+            page=0,
+            url="",
+            is_free=True,
         ).initialize_automation(d)
 
     @classmethod

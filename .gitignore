@@ -23,6 +23,7 @@ tempvenv/
 
 *.json
 !*.spec.json
+!res/*.json
 *.pdf
 *.zip
 
