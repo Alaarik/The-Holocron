@@ -229,7 +229,7 @@ bot = Avrae(
     description=desc,
     pm_help=True,
     testing=config.TESTING,
-    activity=disnake.Game(name=f"D&D 5e | {config.DEFAULT_PREFIX}help"),
+    activity=disnake.Game(name=f"SW5e | {config.DEFAULT_PREFIX}help"),
     allowed_mentions=disnake.AllowedMentions.none(),
     intents=intents,
     chunk_guilds_at_startup=False,
