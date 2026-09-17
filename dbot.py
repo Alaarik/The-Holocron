@@ -57,6 +57,7 @@ COGS = (
     "cogs5e.gametrack",
     "cogs5e.initiative",
     "cogs5e.sheetManager",
+    "cogs5e.combat_slash",
     "cogsmisc.customization",
     "cogsmisc.core",
     "cogsmisc.stats",
