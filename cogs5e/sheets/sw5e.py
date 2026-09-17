@@ -53,7 +53,7 @@ class SW5ESheetParser:
             "intelligence": base_stats.get("Intelligence", 10),
             "wisdom": base_stats.get("Wisdom", 10),
             "charisma": base_stats.get("Charisma", 10),
-        })
+            })
         
         # We need to add species bonuses and calculate modifiers properly
         species = char_data.get("species", {})
@@ -99,6 +99,44 @@ class SW5ESheetParser:
             elif cname in ["Fighter", "Monk", "Scholar"] and arch in ["Shield Specialist", "Adept", "Discovery"]:
                 pass # 1/3 casting usually gets custom mappings, but omit for simplicity
             
+            # Features & Counters
+            def add_consumable(name, max_val, reset="long"):
+                char.consumables.append({
+                    "name": name,
+                    "maxv": max_val,
+                    "value": max_val - current.get("featuresTimesUsed", {}).get(name, 0),
+                    "reset": reset
+                })
+
+            if cname == "Guardian" and clevel >= 1:
+                uses = 2
+                if clevel >= 5: uses = 3
+                if clevel >= 9: uses = 4
+                if clevel >= 13: uses = 5
+                if clevel >= 17: uses = 6
+                add_consumable("Channel the Force", uses, "short")
+                
+            elif cname == "Berserker" and clevel >= 1:
+                uses = 2
+                if clevel >= 3: uses = 3
+                if clevel >= 6: uses = 4
+                if clevel >= 12: uses = 5
+                if clevel >= 17: uses = 6
+                if clevel >= 20: uses = 99
+                add_consumable("Rage", uses, "long")
+                
+            elif cname == "Fighter":
+                if clevel >= 1: add_consumable("Second Wind", 1, "short")
+                if clevel >= 2: add_consumable("Action Surge", 2 if clevel >= 17 else 1, "short")
+                if clevel >= 9:
+                    uses = 1
+                    if clevel >= 13: uses = 2
+                    if clevel >= 17: uses = 3
+                    add_consumable("Indomitable", uses, "long")
+                    
+            elif cname == "Monk" and clevel >= 2:
+                add_consumable("Focus Points", clevel, "short")
+                
             # Powers
             for p in c.get("forcePowers", []):
                 char.spellbook.add_spell(p.lower(), strict=False)
@@ -107,29 +145,27 @@ class SW5ESheetParser:
                 
         # Also parse root custom powers
         for p in char_data.get("customForcePowers", []):
-             char.spellbook.add_spell(p.get("name", "").lower(), strict=False)
+            char.spellbook.add_spell(p.get("name", "").lower(), strict=False)
         for p in char_data.get("customTechPowers", []):
-             char.spellbook.add_spell(p.get("name", "").lower(), strict=False)
-        
+            char.spellbook.add_spell(p.get("name", "").lower(), strict=False)
+    
         # Add casting mod to points
         if max_force > 0:
             force_mod = max(char.stats.wisdom.modifier, char.stats.charisma.modifier)
             max_force = max(0, max_force + force_mod)
-            from cogs5e.models.sheet.base import Consumable
-            char.consumables.append(Consumable.from_dict({
+            char.consumables.append({
                 "name": "Force Points",
-                "max": max_force,
+                "maxv": max_force,
                 "value": max_force - current.get("forcePointsUsed", 0)
-            }))
-            
+            })
+        
         if max_tech > 0:
             tech_mod = char.stats.intelligence.modifier
             max_tech = max(0, max_tech + tech_mod)
-            from cogs5e.models.sheet.base import Consumable
-            char.consumables.append(Consumable.from_dict({
+            char.consumables.append({
                 "name": "Tech Points",
-                "max": max_tech,
+                "maxv": max_tech,
                 "value": max_tech - current.get("techPointsUsed", 0)
-            }))
-            
+            })
+        
         return char
