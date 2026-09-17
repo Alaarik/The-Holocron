@@ -295,7 +295,7 @@ class InitSlashCog(commands.Cog):
             return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
             
         # Import the madd function from initiative cog
-        init_cog = self.bot.get_cog("Initiative")
+        init_cog = self.bot.get_cog("InitTracker")
         if not init_cog:
             return await inter.followup.send("Initiative module is not loaded.", ephemeral=True)
             

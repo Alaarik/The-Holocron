@@ -56,6 +56,7 @@ SKILL_NAMES = (
     "animalHandling",
     "athletics",
     "deception",
+    "initiative",
     "insight",
     "intimidation",
     "investigation",

@@ -34,7 +34,7 @@ class AddMonsterModal(disnake.ui.Modal):
         if qty and qty != "1":
             args_str += f" -n {qty}"
             
-        init_cog = self.bot.get_cog("Initiative")
+        init_cog = self.bot.get_cog("InitTracker")
         if not init_cog:
             return await inter.followup.send("Initiative module is not loaded.", ephemeral=True)
             
