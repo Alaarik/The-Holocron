@@ -73,6 +73,15 @@ async def get_prefix(the_bot, message):
     return commands.when_mentioned_or(gp)(the_bot, message)
 
 
+
+class DummyDDB:
+    async def get_accessible_entities(self, *args, **kwargs):
+        return set()
+    async def get_ddb_user(self, *args, **kwargs):
+        return None
+    async def close(self):
+        pass
+
 class Avrae(commands.AutoShardedBot):
     def __init__(self, prefix, description=None, **options):
         sync_flags = CommandSyncFlags(
@@ -92,6 +101,7 @@ class Avrae(commands.AutoShardedBot):
         self.pm_help = options.get("pm_help")
         self.testing = options.get("testing")
         self.state = "init"
+        self.ddb = DummyDDB()
 
         # dbs
         self.mclient = motor.motor_asyncio.AsyncIOMotorClient(config.MONGO_URL, retryWrites=False)

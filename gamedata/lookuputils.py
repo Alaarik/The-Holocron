@@ -533,7 +533,7 @@ async def search_entities(
     await ctx.trigger_typing()
 
     # get licensed objects, mapped by entity type
-    available_ids = {k: await ctx.bot.ddb.get_accessible_entities(ctx, ctx.author.id, k) for k in entities}
+    available_ids = {k: (await ctx.bot.ddb.get_accessible_entities(ctx, ctx.author.id, k) if hasattr(ctx.bot, "ddb") else set()) for k in entities}
 
     # Custom selector that handles legacy preference and routes to get_selection()
     async def selector(ctx, choices, *args, **kwargs):
