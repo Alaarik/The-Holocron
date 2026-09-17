@@ -274,5 +274,54 @@ class InitSlashCog(commands.Cog):
         choices = [c.name for c in combat.combatants if user_input.lower() in c.name.lower()]
         return choices[:25]
 
+
+    @slash_init.sub_command(name="add", description="Add a monster to the active combat.")
+    async def init_add(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        monster_name: str = commands.Param(description="The name of the monster to add.")
+    ):
+        await inter.response.defer()
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat:
+                return await inter.followup.send("No active combat found.", ephemeral=True)
+        except Exception as e:
+            return await inter.followup.send("No active combat found.", ephemeral=True)
+            
+        if not combat.can_edit(inter.author):
+            return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
+            
+        # Import the madd function from initiative cog
+        init_cog = self.bot.get_cog("Initiative")
+        if not init_cog:
+            return await inter.followup.send("Initiative module is not loaded.", ephemeral=True)
+            
+        # Fake a context to run the madd command directly
+        class FakeCtx:
+            def __init__(self, inter):
+                self.author = inter.author
+                self.channel = inter.channel
+                self.guild = inter.guild
+                self.bot = inter.bot
+                
+            async def send(self, *args, **kwargs):
+                await inter.followup.send(*args, **kwargs)
+                
+        ctx = FakeCtx(inter)
+        try:
+            await init_cog.madd(ctx, monster_name=monster_name)
+        except Exception as e:
+            await inter.followup.send(f"Error adding monster: {e}")
+            
+        # Update dashboard
+        try:
+            msg = await inter.channel.fetch_message(combat.summary_message_id)
+            await msg.edit(content=combat.get_summary(), view=CombatDashboardView(self.bot))
+        except:
+            pass
+
+
 def setup(bot):
     bot.add_cog(InitSlashCog(bot))
