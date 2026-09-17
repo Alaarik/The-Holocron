@@ -310,6 +310,13 @@ class InitSlashCog(commands.Cog):
             async def send(self, *args, **kwargs):
                 await inter.followup.send(*args, **kwargs)
                 
+            async def trigger_typing(self):
+                pass
+                
+            @property
+            def clean_prefix(self):
+                return "/"
+                
         ctx = FakeCtx(inter)
         try:
             await init_cog.madd(ctx, monster_name=monster_name)
