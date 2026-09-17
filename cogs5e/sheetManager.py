@@ -723,6 +723,12 @@ class SheetManager(commands.Cog):
         elif sheet_type == "google":
             parser = GoogleSheet(_id)
             loading = await ctx.send("Updating character data from Google...")
+        elif sheet_type == "sw5e":
+            if not ctx.message.attachments or not ctx.message.attachments[0].filename.endswith(".json"):
+                return await ctx.send("To update a SW5e character, you must attach the new exported .json file to the `!update` command.")
+            loading = await ctx.send("Updating character data from JSON attachment...")
+            json_bytes = await ctx.message.attachments[0].read()
+            parser = SW5ESheetParser(json_data=json_bytes.decode('utf-8'))
         elif sheet_type == "beyond": return await ctx.send("DDB not supported")
         else:
             return await ctx.send(f"Error: Unknown sheet type {sheet_type}.")
@@ -920,8 +926,10 @@ class SheetManager(commands.Cog):
         if ctx.message.attachments and ctx.message.attachments[0].filename.endswith(".json"):
             loading = await ctx.send("Loading character data from JSON attachment...")
             prefix = "sw5e"
-            url = "upload"
             json_bytes = await ctx.message.attachments[0].read()
+            import json
+            parsed = json.loads(json_bytes.decode('utf-8'))
+            url = parsed.get("id") or parsed.get("localId", "upload")
             parser = SW5ESheetParser(json_data=json_bytes.decode('utf-8'))
         elif url and (sw5e_match := SW5E_URL_RE.match(url)):
             loading = await ctx.send("Loading character data from SW5e Builder...")
