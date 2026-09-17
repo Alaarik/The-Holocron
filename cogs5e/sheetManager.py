@@ -26,6 +26,7 @@ from cogs5e.models.character import Character
 from cogs5e.models.embeds import EmbedWithAuthor
 from cogs5e.models.errors import ExternalImportError, NoCharacter
 from cogs5e.models.sheet.attack import Attack, AttackList
+from cogs5e.sheets.sw5e import SW5E_URL_RE, SW5ESheetParser
 from cogs5e.sheets.dicecloud import DICECLOUD_URL_RE, DicecloudParser
 from cogs5e.sheets.dicecloudv2 import DICECLOUDV2_URL_RE, DicecloudV2Parser
 from cogs5e.sheets.gsheet import GoogleSheet, extract_gsheet_id_from_url
@@ -838,7 +839,7 @@ class SheetManager(commands.Cog):
 
     @commands.command(name="import")
     @commands.max_concurrency(1, BucketType.user)
-    async def import_sheet(self, ctx, url: str, version: str = None, *, args=""):
+    async def import_sheet(self, ctx, url: str = None, version: str = None, *, args=""):
         """
         Loads a character sheet from one of the accepted sites:
             [D&D Beyond](https://www.dndbeyond.com/)
@@ -871,6 +872,19 @@ class SheetManager(commands.Cog):
 
 
         """  # noqa: E501
+        
+        # Handle attachment without URL
+        if not url and not ctx.message.attachments:
+            return await ctx.send("You must provide a URL or attach a SW5e JSON character file to import.")
+            
+        if url in VALID_VERSIONS:
+            args = f"{version} {args}".strip() if version else args
+            version = url
+            url = None
+            
+        if not url and not ctx.message.attachments:
+            return await ctx.send("You must provide a URL or attach a SW5e JSON character file to import.")
+            
         try:
             serv_settings = await ctx.get_server_settings()
             if version is None:
@@ -899,33 +913,32 @@ class SheetManager(commands.Cog):
             # We will get here when done in DM's
             version = version if version and version in VALID_VERSIONS[:2] else "2024"
 
-        url = await self._check_url(ctx, url)  # check for < >
-        # Sheets in order: DDB, Dicecloud, Gsheet
-        if beyond_match := DDB_URL_RE.match(url):
-            loading = await ctx.send("Loading character data from Beyond...")
-            prefix = "beyond"
-            url = beyond_match.group(1)
-            parser = BeyondSheetParser(url)
-        elif beyond_pdf_match := DDB_PDF_URL_RE.match(url):
-            await ctx.send(
-                "Warning: This URL is for a PDF, and not for the actual character sheet. "
-                "Next time, please use the sharing link instead."
-            )
-            loading = await ctx.send("Loading character data from Beyond...")
-            prefix = "beyond"
-            url = beyond_pdf_match.group(1)
-            parser = BeyondSheetParser(url)
-        elif dicecloud_match := DICECLOUD_URL_RE.match(url):
+        if url:
+            url = await self._check_url(ctx, url)  # check for < >
+            
+        # Sheets in order: SW5e, Dicecloud, Gsheet
+        if ctx.message.attachments and ctx.message.attachments[0].filename.endswith(".json"):
+            loading = await ctx.send("Loading character data from JSON attachment...")
+            prefix = "sw5e"
+            url = "upload"
+            json_bytes = await ctx.message.attachments[0].read()
+            parser = SW5ESheetParser(json_data=json_bytes.decode('utf-8'))
+        elif url and (sw5e_match := SW5E_URL_RE.match(url)):
+            loading = await ctx.send("Loading character data from SW5e Builder...")
+            prefix = "sw5e"
+            url = sw5e_match.group(1)
+            parser = SW5ESheetParser(url)
+        elif url and (dicecloud_match := DICECLOUD_URL_RE.match(url)):
             loading = await ctx.send("Loading character data from Dicecloud...")
             url = dicecloud_match.group(1)
             prefix = "dicecloud"
             parser = DicecloudParser(url)
-        elif dicecloudv2_match := DICECLOUDV2_URL_RE.match(url):
+        elif url and (dicecloudv2_match := DICECLOUDV2_URL_RE.match(url)):
             loading = await ctx.send("Loading character data from Dicecloud V2...")
             url = dicecloudv2_match.group(1)
             prefix = "dicecloudv2"
             parser = DicecloudV2Parser(url)
-        else:
+        elif url:
             try:
                 url = extract_gsheet_id_from_url(url)
             except ExternalImportError:
@@ -941,6 +954,8 @@ class SheetManager(commands.Cog):
             loading = await ctx.send("Loading character data from Google...")
             prefix = "google"
             parser = GoogleSheet(url)
+        else:
+            return await ctx.send("Sheet type or file did not match accepted formats. Please attach a .json file.")
 
         override = await self._confirm_overwrite(ctx, f"{prefix}-{url}")
         if not override:
@@ -948,8 +963,6 @@ class SheetManager(commands.Cog):
 
         # Load the parsed sheet
         character = await self._load_sheet(ctx, parser, args, loading, version)
-        if character and beyond_match:
-            await send_ddb_ctas(ctx, character)
 
     @commands.command(hidden=True, aliases=["gsheet", "dicecloud"])
     @commands.max_concurrency(1, BucketType.user)
