@@ -44,6 +44,7 @@ class InitSlashCog(commands.Cog):
             "Combat has begun!\n"
             "Use the Dashboard buttons below to proceed or use slash commands to manage combat."
         )
+        await combat.commit(inter)
         await temp_summary_msg.edit(content=combat.get_summary(), view=CombatDashboardView(self.bot))
         await inter.followup.send(out)
 
@@ -61,7 +62,7 @@ class InitSlashCog(commands.Cog):
             
         try:
             msgs = await combat.next_turn(inter)
-            await combat.commit()
+            await combat.commit(inter)
             await inter.followup.send("\n".join(msgs))
         except Exception as e:
             await inter.followup.send(str(e))
@@ -97,7 +98,7 @@ class InitSlashCog(commands.Cog):
             target_combatant.set_hp(0)
             
         target_combatant.modify_hp(amount)
-        await combat.commit()
+        await combat.commit(inter)
         await inter.followup.send(f"Modified {target}'s HP by {amount}.")
         
         try:
@@ -144,7 +145,7 @@ class InitSlashCog(commands.Cog):
             return await inter.followup.send(f"Effect '{effect}' not found on {target}.", ephemeral=True)
             
         target_combatant.remove_effect(effect_obj)
-        await combat.commit()
+        await combat.commit(inter)
         await inter.followup.send(f"Removed '{effect}' from {target}.")
         
         try:
