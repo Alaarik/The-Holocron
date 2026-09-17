@@ -105,6 +105,13 @@ SKILL_MAP = {
     "intelligence": "intelligence",
     "wisdom": "wisdom",
     "charisma": "charisma",
+    "initiative": "dexterity",
+    "strengthSave": "strength",
+    "dexteritySave": "dexterity",
+    "constitutionSave": "constitution",
+    "intelligenceSave": "intelligence",
+    "wisdomSave": "wisdom",
+    "charismaSave": "charisma",
 }
 
 
