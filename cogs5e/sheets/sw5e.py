@@ -69,8 +69,8 @@ class SW5ESheetParser:
         hp = max_hp - current.get("hitPointsLost", 0)
         temp_hp = current.get("temporaryHitPoints", 0)
         
-        saves = Saves.from_dict({})
-        skills = Skills.from_dict({})
+        saves = Saves.default(stats)
+        skills = Skills.default(stats)
         resistances = Resistances.from_dict({})
         spellbook = Spellbook()
         consumables = []
