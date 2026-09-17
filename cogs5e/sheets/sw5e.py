@@ -37,9 +37,19 @@ class SW5ESheetParser:
             
         char_data = json.loads(data["jsonData"])
         
+        # Levels
+        level_map = {}
+        for c in char_data.get("classes", []):
+            level_map[c.get("name", "Unknown")] = c.get("levels", 0)
+        levels = Levels.from_dict(level_map)
+        level = sum(level_map.values())
+        
+        prof_bonus = 2 + ((max(level, 1) - 1) // 4)
+
         # Build Stats
         base_stats = char_data.get("baseAbilityScores", {})
         stats = BaseStats.from_dict({
+            "prof_bonus": prof_bonus,
             "strength": base_stats.get("Strength", 10),
             "dexterity": base_stats.get("Dexterity", 10),
             "constitution": base_stats.get("Constitution", 10),
@@ -53,19 +63,12 @@ class SW5ESheetParser:
             for stat_name, val in improvements.items():
                 lower_stat = stat_name.lower()
                 if hasattr(stats, lower_stat):
-                    getattr(stats, lower_stat).value += val
-                    
-        # Levels
-        level_map = {}
-        for c in char_data.get("classes", []):
-            level_map[c.get("name", "Unknown")] = c.get("levels", 0)
-        levels = Levels.from_dict(level_map)
-        level = sum(level_map.values())
+                    setattr(stats, lower_stat, getattr(stats, lower_stat) + val)
         
         current = char_data.get("currentStats", {})
         
-        ac = 10 + stats.dexterity.modifier
-        max_hp = 10 + stats.constitution.modifier + (level * 5)
+        ac = 10 + stats.get_mod("dex")
+        max_hp = 10 + stats.get_mod("con") + (level * 5)
         hp = max_hp - current.get("hitPointsLost", 0)
         temp_hp = current.get("temporaryHitPoints", 0)
         
@@ -195,7 +198,7 @@ class SW5ESheetParser:
             spellbook.add_spell(p.get("name", "").lower(), strict=False)
     
         if max_force > 0:
-            force_mod = max(stats.wisdom.modifier, stats.charisma.modifier)
+            force_mod = max(stats.get_mod("wis"), stats.get_mod("cha"))
             max_force = max(0, max_force + force_mod)
             consumables.append({
                 "name": "Force Points",
@@ -204,7 +207,7 @@ class SW5ESheetParser:
             })
         
         if max_tech > 0:
-            tech_mod = stats.intelligence.modifier
+            tech_mod = stats.get_mod("int")
             max_tech = max(0, max_tech + tech_mod)
             consumables.append({
                 "name": "Tech Points",
