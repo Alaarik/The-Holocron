@@ -6,7 +6,6 @@ from disnake.ext.commands import NoPrivateMessage
 
 import aliasing.evaluators
 import aliasing.api.statblock
-from cogs5e.models.ddbsync import DDBSheetSync
 from cogs5e.models.dicecloud.integration import DicecloudIntegration
 from cogs5e.models.embeds import EmbedWithCharacter
 from cogs5e.models.errors import ExternalImportError, InvalidArgument, NoCharacter, NoReset
@@ -876,7 +875,7 @@ class CharacterSpellbook(HasIntegrationMixin, Spellbook):
 
 SetActiveResult = namedtuple("SetActiveResult", ["did_unset_active_location", "message"])
 
-INTEGRATION_MAP = {"dicecloud": DicecloudIntegration, "beyond": DDBSheetSync}
+INTEGRATION_MAP = {"dicecloud": DicecloudIntegration}
 DESERIALIZE_MAP = {
     **_DESER,
     "spellbook": CharacterSpellbook,

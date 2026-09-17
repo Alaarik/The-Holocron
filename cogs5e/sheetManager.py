@@ -26,14 +26,11 @@ from cogs5e.models.character import Character
 from cogs5e.models.embeds import EmbedWithAuthor
 from cogs5e.models.errors import ExternalImportError, NoCharacter
 from cogs5e.models.sheet.attack import Attack, AttackList
-from cogs5e.sheets.beyond import BeyondSheetParser, DDB_URL_RE, DDB_PDF_URL_RE
 from cogs5e.sheets.dicecloud import DICECLOUD_URL_RE, DicecloudParser
 from cogs5e.sheets.dicecloudv2 import DICECLOUDV2_URL_RE, DicecloudV2Parser
 from cogs5e.sheets.gsheet import GoogleSheet, extract_gsheet_id_from_url
 from cogs5e.utils import actionutils, checkutils, targetutils
 from cogs5e.utils.help_constants import *
-from ddb.gamelog import CampaignLink
-from ddb.gamelog.errors import NoCampaignLink
 from utils import img
 from utils.argparser import argparse
 from utils.constants import SKILL_NAMES
@@ -725,9 +722,7 @@ class SheetManager(commands.Cog):
         elif sheet_type == "google":
             parser = GoogleSheet(_id)
             loading = await ctx.send("Updating character data from Google...")
-        elif sheet_type == "beyond":
-            parser = BeyondSheetParser(_id)
-            loading = await ctx.send("Updating character data from Beyond...")
+        elif sheet_type == "beyond": return await ctx.send("DDB not supported")
         else:
             return await ctx.send(f"Error: Unknown sheet type {sheet_type}.")
 

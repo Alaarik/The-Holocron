@@ -34,9 +34,6 @@ from disnake.ext.commands.errors import CommandInvokeError
 from aliasing.errors import CollectableRequiresLicenses, EvaluationError
 from aliasing.helpers import handle_alias_exception, handle_alias_required_licenses, handle_aliases
 from cogs5e.models.errors import AvraeException, RequiresLicense
-from ddb import BeyondClient, BeyondClientBase
-from ddb.errors import AuthException
-from ddb.gamelog import GameLogClient
 from gamedata.compendium import compendium
 from gamedata.lookuputils import handle_required_license
 from utils import clustering, config, context
@@ -44,11 +41,6 @@ from utils.feature_flags import AsyncLaunchDarklyClient
 from utils.health import HealthServer
 from utils.help import help_command
 from utils.redisIO import RedisIO
-
-# Confluent Kafka client
-from confluent_client.producer import KafkaProducer
-
-producer = KafkaProducer()
 
 # This method will load the variables from .env into the environment for running in local
 # from dotenv import load_dotenv
@@ -65,13 +57,10 @@ COGS = (
     "cogs5e.gametrack",
     "cogs5e.initiative",
     "cogs5e.sheetManager",
-    "cogs5e.gamelog",
     "cogsmisc.customization",
     "cogsmisc.core",
-    "cogsmisc.publicity",
     "cogsmisc.stats",
     "cogsmisc.adminUtils",
-    "cogsmisc.tutorials",
 )
 
 
@@ -116,18 +105,8 @@ class Avrae(commands.AutoShardedBot):
         # launch concurrency
         self.launch_max_concurrency = 1
 
-        # ddb entitlements
-        if config.TESTING and config.DDB_AUTH_SERVICE_URL is None:
-            self.ddb = BeyondClientBase()
-        else:
-            self.ddb = BeyondClient(self.loop)
-
         # launchdarkly
         self.ldclient = AsyncLaunchDarklyClient(self.loop, sdk_key=config.LAUNCHDARKLY_SDK_KEY)
-
-        # ddb game log
-        self.glclient = GameLogClient(self)
-        self.glclient.init()
 
         # liveness endpoint for the ECS container healthCheck
         self.health_server = HealthServer(self)
