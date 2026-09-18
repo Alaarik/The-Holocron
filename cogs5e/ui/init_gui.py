@@ -45,9 +45,6 @@ class AddMonsterModal(disnake.ui.Modal):
         custom_name = inter.text_values.get("custom_name")
         if custom_name:
             args_str += f" -name \"{custom_name}\""
-        if custom_name:
-        if custom_name:
-        if custom_name:
             
         init_cog = self.bot.get_cog("InitTracker")
         if not init_cog:
