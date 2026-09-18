@@ -96,17 +96,33 @@ class CombatDashboardView(disnake.ui.View):
             
         await interaction.response.defer()
         
-        try:
-            msgs = await combat.next_turn(interaction)
-        except Exception as e:
-            msgs = [str(e)]
-            
-        await combat.commit(interaction)
-        await interaction.followup.send("\n".join(msgs))
+        init_cog = self.bot.get_cog("InitTracker")
+        class FakeCtx:
+            def __init__(self, inter, c):
+                self.author = inter.author
+                self.channel = inter.channel
+                self.guild = inter.guild
+                self.bot = inter.bot
+                self._combat = c
+            async def get_combat(self):
+                return self._combat
+            async def get_server_settings(self):
+                from cogs5e.models.server_settings import ServerSettings
+                return await ServerSettings.from_ctx(self)
+            async def send(self, *args, **kwargs):
+                await interaction.followup.send(*args, **kwargs)
         
-        summary = combat.get_summary()
+        ctx = FakeCtx(interaction, combat)
         try:
-            await interaction.message.edit(content=summary, view=self)
+            await init_cog.init_next.callback(init_cog, ctx)
+        except Exception as e:
+            await interaction.followup.send(f"Error advancing turn: {e}")
+            
+        # The combat summary will be updated by init_next itself sending the turn message,
+        # but we can also update the dashboard view.
+        try:
+            combat = await Combat.from_ctx(interaction)
+            await interaction.message.edit(content=combat.get_summary(), view=self)
         except Exception:
             pass
 
