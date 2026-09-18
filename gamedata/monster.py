@@ -183,7 +183,7 @@ class Monster(StatBlock, Sourced):
         return cls(
             d.get("name", "Unknown"),
             d.get("size", "Medium"),
-            ", ".join(d.get("types", [])),
+            ", ".join(d.get("types") or []),
             d.get("alignment", "unaligned"),
             d.get("armorClass", 10),
             d.get("armorType", ""),
@@ -193,7 +193,7 @@ class Monster(StatBlock, Sourced):
             ability_scores,
             saves,
             skills,
-            ", ".join(d.get("senses", [])),
+            ", ".join(d.get("senses") or []),
             display_resists,
             d.get("conditionImmunities", []),
             d.get("languages", []),

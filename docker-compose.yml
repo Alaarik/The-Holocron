@@ -14,6 +14,9 @@ services:
       - ./docker/env
     volumes:
       - ./cogs5e:/home/avrae/cogs5e
+      - ./gamedata:/home/avrae/gamedata
+      - ./aliasing:/home/avrae/aliasing
+      - ./ui:/home/avrae/ui
       - ./cogsmisc:/home/avrae/cogsmisc
       - ./dbot.py:/home/avrae/dbot.py
       - ./res:/home/avrae/res
