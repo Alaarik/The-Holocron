@@ -81,7 +81,7 @@ class Compendium:
         self._actions_by_eid = collections.defaultdict(lambda: [])  # {(tid, eid): [Action]}
         self._epoch = 0
 
-        self._base_path = os.path.relpath("res")
+        self._base_path = "/home/avrae/res"
 
     async def reload_task(self, mdb=None):
         wait_for = int(config.RELOAD_INTERVAL)
@@ -97,9 +97,8 @@ class Compendium:
 
         loop = asyncio.get_event_loop()
 
-        if mdb is None:
-            await loop.run_in_executor(None, self.load_all_json)
-        else:
+        await loop.run_in_executor(None, self.load_all_json)
+        if mdb is not None:
             await self.load_all_mongodb(mdb)
 
         await loop.run_in_executor(None, self.load_common)
@@ -181,8 +180,10 @@ class Compendium:
         self.books = self._deserialize_and_register_lookups(Book, self.raw_books)
 
         # generated
-        self._load_classfeats()
-        self._load_subclasses()
+        try: self._load_classfeats()
+        except Exception as e: log.error(f"Classfeats error: {e}")
+        try: self._load_subclasses()
+        except Exception as e: log.error(f"Subclasses error: {e}")
         self._load_racefeats()
         self._load_actions()  # actions don't register as DDB entities, they're their own thing
         self._register_book_lookups()
@@ -281,10 +282,13 @@ class Compendium:
     ) -> List[T]:
         out = []
         for entity_data in data_source:
-            entity = cls.from_data(entity_data, **kwargs)
-            self._register_entity_lookup(entity)
-            if skip_out_filter is None or not skip_out_filter(entity):
-                out.append(entity)
+            try:
+                entity = cls.from_data(entity_data, **kwargs)
+                self._register_entity_lookup(entity)
+                if skip_out_filter is None or not skip_out_filter(entity):
+                    out.append(entity)
+            except Exception as e:
+                log.warning(f"Failed to load {cls.__name__} entity: {e}")
         return out
 
     def _register_entity_lookup(self, entity: Sourced, allow_overwrite=True):
