@@ -108,7 +108,7 @@ class CombatDashboardView(disnake.ui.View):
                 return self._combat
             async def get_server_settings(self):
                 from utils.settings.guild import ServerSettings
-                return await ServerSettings.from_ctx(self)
+                return await ServerSettings.for_guild(self.bot.mdb, self.guild.id) if self.guild else None
             async def send(self, *args, **kwargs):
                 await interaction.followup.send(*args, **kwargs)
         
