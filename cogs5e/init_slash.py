@@ -197,7 +197,7 @@ class InitSlashCog(commands.Cog):
             return await inter.response.send_message("Attacker not found in combat.", ephemeral=True)
             
         # Verify permissions
-        if not combat.can_edit(inter.author) and attacker_combatant.controller_id != inter.author.id:
+        if combat.dm_id != inter.author.id and attacker_combatant.controller_id != inter.author.id:
             return await inter.response.send_message("You do not have permission to control this combatant.", ephemeral=True)
             
         atk = attacker_combatant.get_attack(weapon)

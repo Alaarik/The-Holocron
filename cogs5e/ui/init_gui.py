@@ -183,7 +183,7 @@ class CombatDashboardView(disnake.ui.View):
         await interaction.response.send_modal(AddMonsterModal(self.bot, self))
 
     @disnake.ui.button(label="Refresh", style=disnake.ButtonStyle.secondary, custom_id="init_refresh")
-    async def refresh(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
+    async def on_refresh(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
         from cogs5e.initiative import Combat
         try:
             combat = await Combat.from_ctx(interaction)
