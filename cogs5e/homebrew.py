@@ -20,6 +20,17 @@ class Homebrew(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
+    @commands.slash_command(name="monster", description="Manage homebrew monsters")
+    async def slash_monster(self, inter):
+        pass
+
+    @slash_monster.sub_command(name="create", description="Create a new homebrew monster via an interactive dashboard")
+    async def monster_create(self, inter: disnake.ApplicationCommandInteraction):
+        from cogs5e.ui.monster_builder import MonsterBuilderView
+        view = MonsterBuilderView(self.bot)
+        await inter.response.send_message(embed=view.get_embed(), view=view, ephemeral=True)
+
     async def _clear_entity_cache(self, ctx, entity_type, guild_wide=False):
         """Clear entity cache by delegating to the Lookup cog."""
         lookup = self.bot.get_cog("Lookup")
