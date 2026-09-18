@@ -9,9 +9,17 @@ class AddMonsterModal(disnake.ui.Modal):
         components = [
             disnake.ui.TextInput(
                 label="Monster Name",
-                placeholder="e.g. Stormtrooper, B1 Battle Droid",
+                placeholder="e.g. Trooper, Squad",
                 custom_id="monster_name",
                 style=disnake.TextInputStyle.short,
+                max_length=50,
+            ),
+            disnake.ui.TextInput(
+                label="Custom Name (Optional)",
+                placeholder="e.g. Stormtrooper (replaces combat name)",
+                custom_id="custom_name",
+                style=disnake.TextInputStyle.short,
+                required=False,
                 max_length=50,
             ),
             disnake.ui.TextInput(
