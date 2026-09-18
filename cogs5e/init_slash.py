@@ -260,9 +260,17 @@ class InitSlashCog(commands.Cog):
             if not c: return []
         except: return []
         choices = []
-        for atk in c.attacks:
-            if user_input.lower() in atk.name.lower():
-                choices.append(atk.name)
+        pools = [c.attacks]
+        if hasattr(c, "actions") and c.actions:
+            pools.append(c.actions)
+        elif hasattr(c, "character") and hasattr(c.character, "actions") and c.character.actions:
+            pools.append(c.character.actions)
+            
+        for pool in pools:
+            for atk in pool:
+                if user_input.lower() in atk.name.lower():
+                    if atk.name not in choices:
+                        choices.append(atk.name)
         return choices[:25]
         
     @init_attack.autocomplete("target")

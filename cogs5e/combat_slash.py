@@ -41,10 +41,16 @@ class CombatSlashCog(commands.Cog):
             return []
             
         choices = []
-        for atk in character.attacks:
-            if atk.name not in ["Sneak Attack", "Force-Empowered Strikes", "Ranger's Quarry", "Kinetic Combat", "Superiority Die", "Potent Aptitude"]:
-                if user_input.lower() in atk.name.lower():
-                    choices.append(atk.name)
+        pools = [character.attacks]
+        if hasattr(character, "actions") and character.actions:
+            pools.append(character.actions)
+            
+        for pool in pools:
+            for atk in pool:
+                if atk.name not in ["Sneak Attack", "Force-Empowered Strikes", "Ranger's Quarry", "Kinetic Combat", "Superiority Die", "Potent Aptitude"]:
+                    if user_input.lower() in atk.name.lower():
+                        if atk.name not in choices:
+                            choices.append(atk.name)
         return choices[:25]
         
     @slash_attack.autocomplete("target")

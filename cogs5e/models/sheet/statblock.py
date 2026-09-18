@@ -151,12 +151,20 @@ class StatBlock:
     # ----- Display -----
     def get_attack(self, query: str):
         query = query.lower()
-        for atk in self.attacks:
-            if atk.name.lower() == query:
-                return atk
-        for atk in self.attacks:
-            if query in atk.name.lower():
-                return atk
+        search_pools = [self.attacks]
+        if hasattr(self, "actions") and getattr(self, "actions"):
+            search_pools.append(self.actions)
+        elif hasattr(self, "character") and hasattr(self.character, "actions") and getattr(self.character, "actions"):
+            search_pools.append(self.character.actions)
+            
+        for pool in search_pools:
+            for atk in pool:
+                if atk.name.lower() == query:
+                    return atk
+        for pool in search_pools:
+            for atk in pool:
+                if query in atk.name.lower():
+                    return atk
         return None
 
     def get_title_name(self):
