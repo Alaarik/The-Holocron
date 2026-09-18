@@ -149,6 +149,16 @@ class StatBlock:
 
     # ===== UTILS =====
     # ----- Display -----
+    def get_attack(self, query: str):
+        query = query.lower()
+        for atk in self.attacks:
+            if atk.name.lower() == query:
+                return atk
+        for atk in self.attacks:
+            if query in atk.name.lower():
+                return atk
+        return None
+
     def get_title_name(self):
         return self._name
 

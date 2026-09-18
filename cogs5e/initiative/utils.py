@@ -219,7 +219,15 @@ async def send_turn_message(ctx: "AvraeContext", combat: "Combat", before: list[
 
     result = before_str + content + after_str
 
-    return await ctx.send(result, allowed_mentions=allowed_mentions, components=components)
+    result = before_str + content + after_str
+
+    from cogs5e.ui.init_gui import CombatDashboardView
+    view = CombatDashboardView(ctx.bot)
+    if components:
+        for comp in components[:21]:
+            view.add_item(comp)
+            
+    return await ctx.send(result, allowed_mentions=allowed_mentions, view=view)
 
 
 def ieffect_handler(caster, args, skill_key):

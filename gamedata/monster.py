@@ -2,7 +2,7 @@ import itertools
 import logging
 
 from cogs5e.models.errors import CounterOutOfBounds
-from cogs5e.models.sheet.attack import AttackList
+from cogs5e.models.sheet.attack import AttackList, Attack
 from cogs5e.models.sheet.base import BaseStats, Levels, Saves, Skills
 from cogs5e.models.sheet.resistance import Resistances
 from cogs5e.models.sheet.spellcasting import Spellbook
@@ -179,6 +179,16 @@ class Monster(StatBlock, Sourced):
                 elif bt == "Legendary": legactions.append(t)
                 
         attacks = AttackList()
+        for b in d.get("behaviors", []):
+            if b.get("attackTypeEnum", 0) > 0:
+                name = b.get("name", "Unknown Attack")
+                bonus = b.get("attackBonus", 0)
+                damage_roll = b.get("damageRoll")
+                damage_type = b.get("damageType", "Unknown")
+                damage_calc = f"{damage_roll} [{damage_type.lower()}]" if damage_roll else "0"
+                atk = Attack.new(name=name, bonus_calc=str(bonus), damage_calc=damage_calc)
+                attacks.append(atk)
+
         spellcasting = None
         return cls(
             d.get("name", "Unknown"),
