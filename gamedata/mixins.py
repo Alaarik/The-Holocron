@@ -41,7 +41,7 @@ class AutomatibleMixin:
         """
         from cogs5e.models.automation import Automation
 
-        self.automation = Automation.from_data(data["automation"])
+        self.automation = Automation.from_data(data.get("automation") or [])
         return self
 
 

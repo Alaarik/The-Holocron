@@ -18,7 +18,7 @@ class Background(Sourced):
     def from_data(cls, d):
         return cls(
             d["name"],
-            [Trait.from_dict(t) for t in d["traits"]],
+            [Trait.from_dict(t) for t in d.get("traits", [])],
             source=d["source"],
             entity_id=d["id"],
             page=d["page"],
