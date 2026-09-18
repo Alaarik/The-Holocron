@@ -107,7 +107,7 @@ class CombatDashboardView(disnake.ui.View):
             async def get_combat(self):
                 return self._combat
             async def get_server_settings(self):
-                from cogs5e.models.server_settings import ServerSettings
+                from utils.settings.guild import ServerSettings
                 return await ServerSettings.from_ctx(self)
             async def send(self, *args, **kwargs):
                 await interaction.followup.send(*args, **kwargs)
