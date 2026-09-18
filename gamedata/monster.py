@@ -163,8 +163,8 @@ class Monster(StatBlock, Sourced):
             "wisdom": d.get("wisdom", 10),
             "charisma": d.get("charisma", 10),
         })
-        saves = Saves.from_dict({}) # SW5e handles saves dynamically or in traits sometimes
-        skills = Skills.from_dict({}) # Needs proper parsing for production, but stubbed for now
+        saves = Saves.from_dict({k: {"value": 0, "prof": 0} for k in ["strengthSave", "dexteritySave", "constitutionSave", "intelligenceSave", "wisdomSave", "charismaSave"]})
+        skills = Skills.from_dict({k: {"value": 0, "prof": 0} for k in ["acrobatics", "animalHandling", "athletics", "deception", "initiative", "insight", "intimidation", "investigation", "lore", "medicine", "nature", "perception", "performance", "persuasion", "piloting", "sleightOfHand", "stealth", "survival", "technology", "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]})
         display_resists = Resistances.from_dict({}, smart=False)
         resistances = Resistances.from_dict({})
         

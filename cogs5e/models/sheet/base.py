@@ -5,13 +5,13 @@ from utils.functions import camel_to_title, verbose_stat
 class BaseStats:
     def __init__(
         self,
-        prof_bonus: int,
         strength: int,
         dexterity: int,
         constitution: int,
         intelligence: int,
         wisdom: int,
         charisma: int,
+        prof_bonus: int = 2,
     ):
         self.prof_bonus = prof_bonus
         self.strength = strength
