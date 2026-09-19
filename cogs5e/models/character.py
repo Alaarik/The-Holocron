@@ -818,6 +818,14 @@ class Character(StatBlock):
         if atk_str:
             embed.add_field(name="Attacks", value=atk_str)
 
+        # actions (names only)
+        if self.actions:
+            action_names = ", ".join(a.name for a in sorted(self.actions, key=lambda a: a.name))
+            if len(action_names) > 1024:
+                action_names = f"{action_names[:1020]}..."
+            if action_names:
+                embed.add_field(name="Actions", value=action_names)
+
         # Coins
         embed.add_field(name="Currency", value=str(self.coinpurse))
 

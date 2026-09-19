@@ -43,7 +43,191 @@ log = logging.getLogger(__name__)
 DELETE_AFTER_SECONDS = 20
 
 
+
+class SheetView(disnake.ui.View):
+    def __init__(self, character, author_id):
+        super().__init__(timeout=600)
+        self.character = character
+        self.author_id = author_id
+
+
+    def _update_buttons(self, clicked_button):
+        for child in self.children:
+            if isinstance(child, disnake.ui.Button):
+                child.style = disnake.ButtonStyle.secondary
+        clicked_button.style = disnake.ButtonStyle.primary
+
+    async def interaction_check(self, interaction: disnake.MessageInteraction):
+        if interaction.author.id != self.author_id:
+            await interaction.response.send_message("This is not your sheet!", ephemeral=True)
+            return False
+        return True
+
+    @disnake.ui.button(label="Overview", style=disnake.ButtonStyle.primary)
+    async def btn_overview(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        self._update_buttons(button)
+        await inter.response.edit_message(embeds=[self.character.get_sheet_embed()], view=self)
+
+    @disnake.ui.button(label="Actions", style=disnake.ButtonStyle.secondary)
+    async def btn_actions(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        actions_list = sorted(self.character.actions, key=lambda a: a.name)
+        if not actions_list:
+            embeds = [disnake.Embed(title=f"{self.character.name} - Actions", description="No actions found.", color=0x2ecc71)]
+        else:
+            embeds = []
+            current_embed = disnake.Embed(title=f"{self.character.name} - Actions", color=0x2ecc71)
+            current_desc = ""
+            for act in actions_list:
+                val = act.build_str(self.character)
+                addition = f"**{act.name}**\n{val}\n\n"
+                if len(current_desc) + len(addition) > 4000:
+                    current_embed.description = current_desc.strip()
+                    embeds.append(current_embed)
+                    current_embed = disnake.Embed(color=0x2ecc71)
+                    current_desc = addition
+                else:
+                    current_desc += addition
+            if current_desc:
+                current_embed.description = current_desc.strip()
+                embeds.append(current_embed)
+            embeds = embeds[:10]
+            
+        self._update_buttons(button)
+        await inter.response.edit_message(embeds=embeds, view=self)
+
+    @disnake.ui.button(label="Powers", style=disnake.ButtonStyle.secondary)
+    async def btn_powers(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        is_tech = False
+        if hasattr(self.character, "levels"):
+            for c, _ in self.character.levels.get_classes():
+                if c in ("Engineer", "Scout", "Astrotech", "Techcaster"):
+                    is_tech = True
+                    break
+        
+        p_label = "Tech Points" if is_tech else "Force Points"
+        title = f"{self.character.name} - Tech Powers" if is_tech else f"{self.character.name} - Force Powers"
+        
+        points_val = "None"
+        for c in self.character.consumables:
+            name = getattr(c, 'name', c.get('name', 'Unknown') if hasattr(c, 'get') else 'Unknown')
+            if name == p_label:
+                val = getattr(c, 'value', 0) if hasattr(c, 'value') else c.get('value', 0) if hasattr(c, 'get') else 0
+                maxv = getattr(c, 'maxv', 0) if hasattr(c, 'maxv') else c.get('maxv', 0) if hasattr(c, 'get') else 0
+                points_val = f"{val} / {maxv}"
+                break
+                
+        embed = disnake.Embed(title=title, color=0x3498db)
+        
+        embed.add_field(name=p_label, value=points_val, inline=True)
+        embed.add_field(name="Power Attack Bonus", value=str(self.character.spellbook.sab), inline=True)
+        embed.add_field(name="DC", value=str(self.character.spellbook.dc), inline=True)
+        
+        grouped = {}
+        for spell in self.character.spellbook.spells:
+            lvl = spell.level or 0
+            if lvl not in grouped: grouped[lvl] = []
+            grouped[lvl].append(f"**{spell.name.title()}**" + (" *(Prepared)*" if spell.prepared else ""))
+            
+        if not grouped:
+            embed.add_field(name="Powers Known", value="No powers known.", inline=False)
+        else:
+            for lvl in sorted(grouped.keys()):
+                lvl_str = "At-Will" if lvl == 0 else f"Level {lvl}"
+                embed.add_field(name=lvl_str, value="\n".join(grouped[lvl])[:1024], inline=False)
+            
+        self._update_buttons(button)
+        await inter.response.edit_message(embeds=[embed], view=self)
+
+
+    @disnake.ui.button(label="Counters", style=disnake.ButtonStyle.secondary)
+    async def btn_counters(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        embed = disnake.Embed(title=f"{self.character.name} - Features & Counters", color=0xe67e22)
+        
+        counters = []
+        # Support char.consumables which is a list of CustomCounters
+        for c in self.character.consumables:
+            val = getattr(c, 'value', 0) if hasattr(c, 'value') else c.get('value', 0) if hasattr(c, 'get') else 0
+            maxv = getattr(c, 'maxv', 0) if hasattr(c, 'maxv') else c.get('maxv', 0) if hasattr(c, 'get') else 0
+            name = getattr(c, 'name', 'Unknown') if hasattr(c, 'name') else c.get('name', 'Unknown') if hasattr(c, 'get') else 'Unknown' 
+            counters.append(f"**{name}**: {val} / {maxv}")
+            
+        if not counters:
+            embed.description = "No counters found."
+        else:
+            embed.description = "\n".join(counters)[:4000]
+            
+        self._update_buttons(button)
+        await inter.response.edit_message(embeds=[embed], view=self)
+
+
+
+    @disnake.ui.button(label="Inventory", style=disnake.ButtonStyle.secondary)
+    async def btn_inventory(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        embed = disnake.Embed(title=f"{self.character.name} - Inventory", color=0xf1c40f)
+        
+        # Coins / Credits
+        if self.character.coinpurse:
+            # Check if this is an SW5e sheet to rename gp to Credits visually
+            if getattr(self.character, "sheet_type", "") == "sw5e":
+                embed.add_field(name="Wallet", value=f"**Credits:** {self.character.coinpurse.gp:,}", inline=False)
+            else:
+                embed.add_field(name="Wallet", value=str(self.character.coinpurse), inline=False)
+            
+        # Bags / Items
+        try:
+            bags_cvar = self.character.cvars.get("bags")
+            if bags_cvar:
+                import json
+                bags = json.loads(bags_cvar)
+                
+                # bags format is typically a list of tuples: [["BagName", {"ItemName": Qty, ...}], ...]
+                if isinstance(bags, list):
+                    for bag in bags:
+                        if len(bag) == 2:
+                            bag_name = bag[0]
+                            items_dict = bag[1]
+                            
+                            items_str = []
+                            for item, qty in items_dict.items():
+                                items_str.append(f"{qty}x {item}")
+                                
+                            val = "\n".join(items_str) if items_str else "Empty"
+                            if len(val) > 1024:
+                                val = val[:1020] + "..."
+                            embed.add_field(name=bag_name, value=val, inline=True)
+                elif isinstance(bags, dict):
+                    # alternative format dict mapping bag_name -> dict of items
+                    for bag_name, items_dict in bags.items():
+                        items_str = []
+                        for item, qty in items_dict.items():
+                            items_str.append(f"{qty}x {item}")
+                            
+                        val = "\n".join(items_str) if items_str else "Empty"
+                        if len(val) > 1024:
+                            val = val[:1020] + "..."
+                        embed.add_field(name=bag_name, value=val, inline=True)
+            else:
+                embed.add_field(name="Bags", value="No bags found. Use `!bag` to manage your inventory!", inline=False)
+        except Exception as e:
+            embed.add_field(name="Bags", value="Could not read inventory format.", inline=False)
+            
+        self._update_buttons(button)
+        await inter.response.edit_message(embeds=[embed], view=self)
+
 class SheetManager(commands.Cog):
+    @commands.slash_command(name="sheet", description="View your interactive character sheet.")
+    async def slash_sheet(self, inter: disnake.ApplicationCommandInteraction):
+        try:
+            char = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
+        except Exception:
+            return await inter.response.send_message("You don't have an active character! Use `/character` to set one.", ephemeral=True)
+            
+        if not char:
+            return await inter.response.send_message("You don't have an active character!", ephemeral=True)
+
+        view = SheetView(char, inter.author.id)
+        await inter.response.send_message(embed=char.get_sheet_embed(), view=view)
+
     """
     Commands to load a character sheet into Avrae, and supporting commands to modify the character, as well as basic macros.
     """  # noqa: E501
@@ -696,6 +880,11 @@ class SheetManager(commands.Cog):
     @commands.command()
     @commands.max_concurrency(1, BucketType.user)
     async def update(self, ctx, *, args=""):
+        import importlib
+        import cogs5e.sheets.sw5e
+        importlib.reload(cogs5e.sheets.sw5e)
+        from cogs5e.sheets.sw5e import SW5ESheetParser
+        global SW5ESheetParser
         """
         Updates the current character sheet, preserving all settings.
         __Valid Arguments__
