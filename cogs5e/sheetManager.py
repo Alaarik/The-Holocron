@@ -138,8 +138,15 @@ class SheetView(disnake.ui.View):
         embed.add_field(name="DC", value=str(self.character.spellbook.dc), inline=True)
         
         grouped = {}
+        from gamedata.compendium import compendium
         for spell in self.character.spellbook.spells:
-            lvl = spell.level or 0
+            lvl = spell.level
+            if lvl is None:
+                # search compendium
+                found = next((s for s in compendium.spells if s.name.lower() == spell.name.lower()), None)
+                if found:
+                    lvl = found.level
+            lvl = lvl or 0
             if lvl not in grouped: grouped[lvl] = []
             grouped[lvl].append(f"**{spell.name.title()}**" + (" *(Prepared)*" if spell.prepared else ""))
             
