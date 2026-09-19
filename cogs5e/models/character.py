@@ -809,20 +809,13 @@ class Character(StatBlock):
 
         embed.description = "\n".join(desc_details)
 
-        # attacks
-        atk_names = ", ".join(atk.name for atk in sorted(self.attacks.no_activation_types, key=lambda atk: atk.name))
-        if len(atk_names) > 1000:
-            atk_names = f"{atk_names[:1000]}..."
-        if atk_names:
-            embed.add_field(name="Attacks", value=atk_names)
-
-        # actions (names only)
-        if self.actions:
-            action_names = ", ".join(a.name for a in sorted(self.actions, key=lambda a: a.name))
-            if len(action_names) > 1024:
-                action_names = f"{action_names[:1020]}..."
-            if action_names:
-                embed.add_field(name="Actions", value=action_names)
+        # attacks and actions
+        combined_names = sorted([a.name for a in self.attacks.no_activation_types] + [a.name for a in self.actions])
+        actions_str = ", ".join(combined_names)
+        if len(actions_str) > 1000:
+            actions_str = f"{actions_str[:1000]}..."
+        if actions_str:
+            embed.add_field(name="Actions & Attacks", value=actions_str)
 
         # Coins
         embed.add_field(name="Currency", value=str(self.coinpurse))

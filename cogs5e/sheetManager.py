@@ -70,7 +70,10 @@ class SheetView(disnake.ui.View):
 
     @disnake.ui.button(label="Actions", style=disnake.ButtonStyle.secondary)
     async def btn_actions(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        actions_list = sorted(self.character.attacks.no_activation_types, key=lambda a: a.name)
+        attacks = list(self.character.attacks.no_activation_types)
+        class_actions = list(self.character.actions)
+        actions_list = sorted(attacks + class_actions, key=lambda a: a.name)
+        
         if not actions_list:
             embeds = [disnake.Embed(title=f"{self.character.name} - Actions", description="No actions found.", color=0x2ecc71)]
         else:
@@ -79,7 +82,11 @@ class SheetView(disnake.ui.View):
             current_desc = ""
             for act in actions_list:
                 val = act.build_str(self.character)
-                addition = f"**{act.name}**\n{val}\n\n"
+                if val.startswith(f"**{act.name}**"):
+                    addition = f"{val}\n\n"
+                else:
+                    addition = f"**{act.name}**: {val}\n\n"
+                    
                 if len(current_desc) + len(addition) > 4000:
                     current_embed.description = current_desc.strip()
                     embeds.append(current_embed)
