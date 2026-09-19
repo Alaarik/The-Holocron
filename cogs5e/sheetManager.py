@@ -83,7 +83,7 @@ class SheetView(disnake.ui.View):
         
         for act in attacks + class_actions:
             if act.name not in seen_names:
-                if act.name.lower() in weapon_names:
+                if getattr(act, "is_weapon", False) or act.name.lower() in weapon_names:
                     weapons.append(act)
                 else:
                     features.append(act)
@@ -228,14 +228,32 @@ class SheetView(disnake.ui.View):
     async def btn_counters(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         embed = disnake.Embed(title=f"{self.character.name} - Features & Counters", color=0xe67e22)
         
+        def make_bubbles(val, maxv, filled="◉", empty="〇"):
+            if not isinstance(val, int) or not isinstance(maxv, int) or maxv > 20 or maxv <= 0:
+                return f"{val} / {maxv}"
+            # clamp val just in case
+            v = max(0, min(val, maxv))
+            return filled * v + empty * (maxv - v)
+
         counters = []
-        # Support char.consumables which is a list of CustomCounters
         for c in self.character.consumables:
             val = c.value if hasattr(c, 'value') else getattr(c, '_value', 0) if hasattr(c, '_value') else c.get('value', 0) if hasattr(c, 'get') else 0
             maxv = c.get_max() if hasattr(c, 'get_max') else getattr(c, 'max', getattr(c, 'maxv', 0)) if hasattr(c, 'max') or hasattr(c, 'maxv') else c.get('maxv', c.get('max', 0)) if hasattr(c, 'get') else 0
-            if maxv == 2**31 - 1: maxv = "∞"
             name = getattr(c, 'name', 'Unknown') if hasattr(c, 'name') else c.get('name', 'Unknown') if hasattr(c, 'get') else 'Unknown' 
-            counters.append(f"**{name}**: {val} / {maxv}")
+            
+            if maxv == 2**31 - 1:
+                display = f"{val} / ∞"
+            elif name.startswith("Hit Dice (d"):
+                die_size = name.split("(d")[1].split(")")[0]
+                if die_size == "6": display = make_bubbles(val, maxv, "◼", "◻")
+                elif die_size == "8": display = make_bubbles(val, maxv, "◆", "◇")
+                elif die_size == "10": display = make_bubbles(val, maxv, "⬟", "⬠")
+                elif die_size == "12": display = make_bubbles(val, maxv, "⬢", "⬡")
+                else: display = make_bubbles(val, maxv, "▣", "▢")
+            else:
+                display = make_bubbles(val, maxv, "◉", "〇")
+            
+            counters.append(f"**{name}**: {display}")
             
         if not counters:
             embed.description = "No counters found."

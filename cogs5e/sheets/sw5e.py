@@ -248,6 +248,36 @@ class SW5ESheetParser:
                 "value": max_tech - current.get("techPointsUsed", 0)
             })
             
+        # Add Hit Dice
+        hit_dice_map = {
+            "Consular": 6,
+            "Engineer": 8,
+            "Operative": 8,
+            "Scholar": 8,
+            "Sentinel": 8,
+            "Monk": 8,
+            "Fighter": 10,
+            "Guardian": 10,
+            "Scout": 10,
+            "Berserker": 12,
+        }
+        die_totals = {}
+        for c in char_data.get("classes", []):
+            cname = c.get("name", "Unknown")
+            clevel = c.get("levels", 0)
+            if clevel <= 0: continue
+            die = hit_dice_map.get(cname, 8)
+            die_totals[die] = die_totals.get(die, 0) + clevel
+            
+        hd_used = current.get("hitDiceUsed", {})
+        for die, total in die_totals.items():
+            used = hd_used.get(f"d{die}", hd_used.get(str(die), 0))
+            consumables.append({
+                "name": f"Hit Dice (d{die})",
+                "maxv": total,
+                "value": max(0, total - used)
+            })
+            
         def is_action_text(text):
             t = text.lower()
             return "as an action" in t or "as a bonus action" in t or "use your reaction" in t or "expend a use" in t or "as a reaction" in t
@@ -345,11 +375,38 @@ class SW5ESheetParser:
                     atk = Attack(eq_name, old_to_automation(damage=str(damage), details=desc[:1000]))
                     if not damage:
                         atk.list_display_override = desc[:100] + ("..." if len(desc) > 100 else "")
+                    atk.is_weapon = True
                     attacks_list.append(atk)
                 else:
-                    atk = Attack(eq_name, old_to_automation(damage="", details="Custom Weapon"))
-                    atk.list_display_override = "Custom Weapon"
-                    attacks_list.append(atk)
+                    # Fallback to SW5e API directly
+                    api_success = False
+                    try:
+                        import aiohttp
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get("https://sw5eapi.azurewebsites.net/api/equipment") as resp:
+                                if resp.status == 200:
+                                    eq_list = await resp.json()
+                                    api_weapon = next((w for w in eq_list if w.get("name", "").lower() == eq_name.lower()), None)
+                                    if api_weapon:
+                                        num_dice = api_weapon.get("damageNumberOfDice", 0)
+                                        die_type = api_weapon.get("damageDieType", 0)
+                                        damage_type = api_weapon.get("damageType", "").lower()
+                                        damage = f"{num_dice}d{die_type} {damage_type}" if num_dice and die_type else ""
+                                        props = ", ".join(api_weapon.get("properties", []))
+                                        atk = Attack(eq_name, old_to_automation(damage=damage, details=props))
+                                        if not damage:
+                                            atk.list_display_override = props[:100] + ("..." if len(props) > 100 else "")
+                                        atk.is_weapon = True
+                                        attacks_list.append(atk)
+                                        api_success = True
+                    except Exception as e:
+                        log.error(f"Failed to fetch {eq_name} from SW5e API: {e}")
+                        
+                    if not api_success:
+                        atk = Attack(eq_name, old_to_automation(damage="", details="Custom Weapon"))
+                        atk.list_display_override = "Custom Weapon"
+                        atk.is_weapon = True
+                        attacks_list.append(atk)
             
         attacks = AttackList(attacks_list)
             
