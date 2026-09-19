@@ -72,28 +72,41 @@ class SheetView(disnake.ui.View):
     async def btn_actions(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         attacks = list(self.character.attacks)
         class_actions = list(self.character.actions)
-        # deduplicate by name, preferring attacks if names match
+        
+        from gamedata.compendium import compendium
+        weapon_names = {w.name.lower() for w in compendium.weapons}
+        weapon_names.add("unarmed strike")
+        
+        weapons = []
+        features = []
         seen_names = set()
-        actions_list = []
+        
         for act in attacks + class_actions:
             if act.name not in seen_names:
-                actions_list.append(act)
+                if act.name.lower() in weapon_names:
+                    weapons.append(act)
+                else:
+                    features.append(act)
                 seen_names.add(act.name)
-        actions_list.sort(key=lambda a: a.name)
         
-        if not actions_list:
+        weapons.sort(key=lambda a: a.name)
+        features.sort(key=lambda a: a.name)
+        
+        # Build the sections
+        sections = []
+        if weapons:
+            sections.append(("Weapons", weapons))
+        if features:
+            sections.append(("Features & Actions", features))
+            
+        if not sections:
             embeds = [disnake.Embed(title=f"{self.character.name} - Actions", description="No actions found.", color=0x2ecc71)]
         else:
             embeds = []
             current_embed = disnake.Embed(title=f"{self.character.name} - Actions", color=0x2ecc71)
             current_desc = ""
-            for act in actions_list:
-                val = act.build_str(self.character)
-                if val.startswith(f"**{act.name}**"):
-                    addition = f"{val}\n\n"
-                else:
-                    addition = f"**{act.name}**: {val}\n\n"
-                    
+            for sec_name, act_list in sections:
+                addition = f"### {sec_name}\n"
                 if len(current_desc) + len(addition) > 4000:
                     current_embed.description = current_desc.strip()
                     embeds.append(current_embed)
@@ -101,6 +114,21 @@ class SheetView(disnake.ui.View):
                     current_desc = addition
                 else:
                     current_desc += addition
+                    
+                for act in act_list:
+                    val = act.build_str(self.character)
+                    if val.startswith(f"**{act.name}**"):
+                        addition = f"{val}\n\n"
+                    else:
+                        addition = f"**{act.name}**: {val}\n\n"
+                    
+                    if len(current_desc) + len(addition) > 4000:
+                        current_embed.description = current_desc.strip()
+                        embeds.append(current_embed)
+                        current_embed = disnake.Embed(color=0x2ecc71)
+                        current_desc = addition
+                    else:
+                        current_desc += addition
             if current_desc:
                 current_embed.description = current_desc.strip()
                 embeds.append(current_embed)
@@ -172,15 +200,15 @@ class SheetView(disnake.ui.View):
             if lvl not in grouped: grouped[lvl] = []
             
             if is_tech:
-                atk_dc_str = f" *(+{tech_atk} / DC {tech_dc})*"
+                atk_dc_str = ""
             else:
                 align = found.components.lower() if found and getattr(found, 'components', None) else ""
                 if "light" in align:
-                    atk_dc_str = f" *(+{light_atk} / DC {light_dc})*"
+                    atk_dc_str = " *(Light)*"
                 elif "dark" in align:
-                    atk_dc_str = f" *(+{dark_atk} / DC {dark_dc})*"
+                    atk_dc_str = " *(Dark)*"
                 else:
-                    atk_dc_str = f" *(+{univ_atk} / DC {univ_dc})*"
+                    atk_dc_str = " *(Universal)*"
             
             prep_str = " *(Prepared)*" if spell.prepared else ""
             grouped[lvl].append(f"**{spell.name.title()}**{atk_dc_str}{prep_str}")

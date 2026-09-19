@@ -320,7 +320,9 @@ class SW5ESheetParser:
         from gamedata.compendium import compendium
         
         # Always add Unarmed Strike
-        attacks_list.append(Attack("Unarmed Strike", old_to_automation(damage="1", details="Unarmed Strike")))
+        unarmed = Attack("Unarmed Strike", old_to_automation(damage="1", details="Unarmed Strike"))
+        unarmed.list_display_override = "1 bludgeoning damage"
+        attacks_list.append(unarmed)
         
         for eq in char_data.get("equipment", []) + char_data.get("customEquipment", []):
             if eq.get("equipped", False):
@@ -341,11 +343,12 @@ class SW5ESheetParser:
                     else:
                         desc = getattr(weapon, "desc", getattr(weapon, "description", ""))
                     atk = Attack(eq_name, old_to_automation(damage=str(damage), details=desc[:1000]))
+                    if not damage:
+                        atk.list_display_override = desc[:100] + ("..." if len(desc) > 100 else "")
                     attacks_list.append(atk)
                 else:
-                    # Generic attack if not found in compendium?
-                    # The user wants them to show up!
                     atk = Attack(eq_name, old_to_automation(damage="", details="Custom Weapon"))
+                    atk.list_display_override = "Custom Weapon"
                     attacks_list.append(atk)
             
         attacks = AttackList(attacks_list)
