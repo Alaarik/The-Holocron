@@ -224,9 +224,9 @@ class SheetView(disnake.ui.View):
         await inter.response.edit_message(embeds=[embed], view=self)
 
 
-    @disnake.ui.button(label="Counters", style=disnake.ButtonStyle.secondary)
+    @disnake.ui.button(label="Resources", style=disnake.ButtonStyle.secondary)
     async def btn_counters(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        embed = disnake.Embed(title=f"{self.character.name} - Features & Counters", color=0xe67e22)
+        embed = disnake.Embed(title=f"{self.character.name} - Resources", color=0xe67e22)
         
         def make_bubbles(val, maxv, filled="◉", empty="〇"):
             if not isinstance(val, int) or not isinstance(maxv, int) or maxv > 20 or maxv <= 0:
