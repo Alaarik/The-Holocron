@@ -70,9 +70,16 @@ class SheetView(disnake.ui.View):
 
     @disnake.ui.button(label="Actions", style=disnake.ButtonStyle.secondary)
     async def btn_actions(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        attacks = list(self.character.attacks.no_activation_types)
+        attacks = list(self.character.attacks)
         class_actions = list(self.character.actions)
-        actions_list = sorted(attacks + class_actions, key=lambda a: a.name)
+        # deduplicate by name, preferring attacks if names match
+        seen_names = set()
+        actions_list = []
+        for act in attacks + class_actions:
+            if act.name not in seen_names:
+                actions_list.append(act)
+                seen_names.add(act.name)
+        actions_list.sort(key=lambda a: a.name)
         
         if not actions_list:
             embeds = [disnake.Embed(title=f"{self.character.name} - Actions", description="No actions found.", color=0x2ecc71)]
@@ -118,8 +125,9 @@ class SheetView(disnake.ui.View):
         for c in self.character.consumables:
             name = getattr(c, 'name', c.get('name', 'Unknown') if hasattr(c, 'get') else 'Unknown')
             if name == p_label:
-                val = getattr(c, 'value', 0) if hasattr(c, 'value') else c.get('value', 0) if hasattr(c, 'get') else 0
-                maxv = getattr(c, 'maxv', 0) if hasattr(c, 'maxv') else c.get('maxv', 0) if hasattr(c, 'get') else 0
+                val = c.value if hasattr(c, 'value') else getattr(c, '_value', 0) if hasattr(c, '_value') else c.get('value', 0) if hasattr(c, 'get') else 0
+                maxv = c.get_max() if hasattr(c, 'get_max') else getattr(c, 'max', getattr(c, 'maxv', 0)) if hasattr(c, 'max') or hasattr(c, 'maxv') else c.get('maxv', c.get('max', 0)) if hasattr(c, 'get') else 0
+                if maxv == 2**31 - 1: maxv = "∞"
                 points_val = f"{val} / {maxv}"
                 break
                 
@@ -153,8 +161,9 @@ class SheetView(disnake.ui.View):
         counters = []
         # Support char.consumables which is a list of CustomCounters
         for c in self.character.consumables:
-            val = getattr(c, 'value', 0) if hasattr(c, 'value') else c.get('value', 0) if hasattr(c, 'get') else 0
-            maxv = getattr(c, 'maxv', 0) if hasattr(c, 'maxv') else c.get('maxv', 0) if hasattr(c, 'get') else 0
+            val = c.value if hasattr(c, 'value') else getattr(c, '_value', 0) if hasattr(c, '_value') else c.get('value', 0) if hasattr(c, 'get') else 0
+            maxv = c.get_max() if hasattr(c, 'get_max') else getattr(c, 'max', getattr(c, 'maxv', 0)) if hasattr(c, 'max') or hasattr(c, 'maxv') else c.get('maxv', c.get('max', 0)) if hasattr(c, 'get') else 0
+            if maxv == 2**31 - 1: maxv = "∞"
             name = getattr(c, 'name', 'Unknown') if hasattr(c, 'name') else c.get('name', 'Unknown') if hasattr(c, 'get') else 'Unknown' 
             counters.append(f"**{name}**: {val} / {maxv}")
             

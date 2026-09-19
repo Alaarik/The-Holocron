@@ -810,7 +810,7 @@ class Character(StatBlock):
         embed.description = "\n".join(desc_details)
 
         # attacks and actions
-        combined_names = sorted([a.name for a in self.attacks.no_activation_types] + [a.name for a in self.actions])
+        combined_names = sorted(list(set([a.name for a in self.attacks] + [a.name for a in self.actions])))
         actions_str = ", ".join(combined_names)
         if len(actions_str) > 1000:
             actions_str = f"{actions_str[:1000]}..."
