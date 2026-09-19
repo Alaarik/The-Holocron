@@ -179,14 +179,14 @@ class SheetView(disnake.ui.View):
         tech_atk = prof + int_mod
         tech_dc = 8 + prof + int_mod
 
-        embed.add_field(name=p_label, value=points_val, inline=True)
-        
         if is_tech:
             embed.add_field(name="Tech Atk / DC", value=f"{tech_atk:+d} / {tech_dc}", inline=True)
         else:
             embed.add_field(name="Light Atk / DC", value=f"{light_atk:+d} / {light_dc}", inline=True)
             embed.add_field(name="Dark Atk / DC", value=f"{dark_atk:+d} / {dark_dc}", inline=True)
             embed.add_field(name="Univ Atk / DC", value=f"{univ_atk:+d} / {univ_dc}", inline=True)
+            
+        embed.add_field(name=p_label, value=points_val, inline=True)
         
         grouped = {}
         from gamedata.compendium import compendium
