@@ -54,7 +54,7 @@ class GameTrack(commands.Cog):
             page1_fields += 1
         if page <= 1:
             embed.add_field(name="Hit Points", value=character.hp_str())
-            embed.add_field(name="Spell Slots", value=character.spellbook.slots_str())
+            embed.add_field(name="Force/Tech Points", value=character.spellbook.slots_str())
             if character.death_saves.successes != 0 or character.death_saves.fails != 0:
                 embed.add_field(name="Death Saves", value=str(character.death_saves))
         total = len(character.consumables)
@@ -82,7 +82,7 @@ class GameTrack(commands.Cog):
 
     @game.command(name="spellbook", aliases=["sb"], hidden=True)
     async def game_spellbook(self, ctx):
-        """**DEPRECATED** - use `!spellbook` instead."""
+        """**DEPRECATED** - use `!powerbook` instead."""
         await self.spellbook(ctx)
 
     @game.command(name="spellslot", aliases=["ss"])
@@ -101,16 +101,16 @@ class GameTrack(commands.Cog):
         embed = EmbedWithCharacter(character)
 
         if level is None and value is None:  # show remaining
-            embed.description = f"__**Remaining Spell Slots**__\n{character.spellbook.slots_str()}"
+            embed.description = f"__**Remaining Force/Tech Points**__\n{character.spellbook.slots_str()}"
         elif value is None:
-            embed.description = f"__**Remaining Level {level} Spell Slots**__\n{character.spellbook.slots_str(level)}"
+            embed.description = f"__**Remaining Level {level} Force/Tech Points**__\n{character.spellbook.slots_str(level)}"
         else:
             old_slots = character.spellbook.get_slots(level)
             value = maybe_mod(value, old_slots)
             character.spellbook.set_slots(level, value, pact="nopact" not in args)
             await character.commit(ctx)
             embed.description = (
-                f"__**Remaining Level {level} Spell Slots**__\n"
+                f"__**Remaining Level {level} Force/Tech Points**__\n"
                 f"{character.spellbook.slots_str(level)} ({(value - old_slots):+})"
             )
 
@@ -176,7 +176,7 @@ class GameTrack(commands.Cog):
                     else:
                         slots_out.append(character.spellbook.slots_str(lvl))
             if slots_out:
-                embed.add_field(name="Spell Slots", value="\n".join(slots_out))
+                embed.add_field(name="Force/Tech Points", value="\n".join(slots_out))
 
             # ccs
             counters_out = []
@@ -416,8 +416,8 @@ class GameTrack(commands.Cog):
         character: Character = await ctx.get_character()
         ep = embeds.EmbedPaginator(EmbedWithCharacter(character))
         ep.add_field(name="DC", value=str(character.spellbook.dc), inline=True)
-        ep.add_field(name="Spell Attack Bonus", value=str(character.spellbook.sab), inline=True)
-        ep.add_field(name="Spell Slots", value=character.spellbook.slots_str() or "None", inline=True)
+        ep.add_field(name="Power Attack Bonus", value=str(character.spellbook.sab), inline=True)
+        ep.add_field(name="Force/Tech Points", value=character.spellbook.slots_str() or "None", inline=True)
 
         show_unprepared = "all" in args
         known_count = len(character.spellbook.spells)
@@ -493,7 +493,7 @@ class GameTrack(commands.Cog):
         if flag_show_multiple_source_help:
             footer_out.append("Asterisks after a spell indicates that the spell is being provided by multiple sources.")
         if flag_show_prepared_help:
-            footer_out.append(f'Unprepared spells were not shown. Use "{ctx.prefix}spellbook all" to view them!')
+            footer_out.append(f'Unprepared powers were not shown. Use "{ctx.prefix}powerbook all" to view them!')
         if flag_show_prepared_underline_help:
             footer_out.append("Prepared spells are marked with an underline.")
 
@@ -551,12 +551,12 @@ class GameTrack(commands.Cog):
 
         num_to_remove = len(character.overrides.spells)
         if not num_to_remove:
-            return await ctx.send("You have no spellbook overrides.")
+            return await ctx.send("You have no powerbook overrides.")
 
         if not await confirm(
             ctx,
             (
-                f"This will remove {num_to_remove} override{'s' if num_to_remove>1 else ''} from your spellbook. "
+                f"This will remove {num_to_remove} override{'s' if num_to_remove>1 else ''} from your powerbook. "
                 "Are you *absolutely sure* you want to continue?"
             ),
         ):
@@ -565,7 +565,7 @@ class GameTrack(commands.Cog):
         character.remove_all_known_spells()
 
         await character.commit(ctx)
-        await ctx.send(f"{num_to_remove} spells removed from spellbook override.")
+        await ctx.send(f"{num_to_remove} powers removed from powerbook override.")
 
     @commands.group(invoke_without_command=True, name="customcounter", aliases=["cc"])
     async def customcounter(self, ctx, name=None, *, modifier=None):

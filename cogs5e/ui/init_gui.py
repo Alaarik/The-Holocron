@@ -8,7 +8,7 @@ class AddMonsterModal(disnake.ui.Modal):
         self.dashboard_view = dashboard_view
         components = [
             disnake.ui.TextInput(
-                label="Monster Name",
+                label="Combatant Name",
                 placeholder="e.g. Trooper, Squad",
                 custom_id="monster_name",
                 style=disnake.TextInputStyle.short,
@@ -30,8 +30,16 @@ class AddMonsterModal(disnake.ui.Modal):
                 required=False,
                 max_length=10,
             ),
+            disnake.ui.TextInput(
+                label="Initiative Position",
+                placeholder="Optional. E.g., 15",
+                custom_id="position",
+                style=disnake.TextInputStyle.short,
+                max_length=10,
+                required=False,
+            ),
         ]
-        super().__init__(title="Add Monster to Combat", components=components)
+        super().__init__(title="Add Combatant", components=components)
 
     async def callback(self, inter: disnake.ModalInteraction):
         await inter.response.defer()
@@ -41,6 +49,10 @@ class AddMonsterModal(disnake.ui.Modal):
         args_str = ""
         if qty and qty != "1":
             args_str += f" -n {qty}"
+            
+        position = inter.text_values.get("position", "")
+        if position:
+            args_str += f" -p {position}"
             
         custom_name = inter.text_values.get("custom_name")
         if custom_name:
@@ -170,7 +182,7 @@ class CombatDashboardView(disnake.ui.View):
             await interaction.followup.send(f"Failed to join: {e}", ephemeral=True)
             
 
-    @disnake.ui.button(label="Add Monster", style=disnake.ButtonStyle.primary, custom_id="init_add_monster")
+    @disnake.ui.button(label="Add Combatant", style=disnake.ButtonStyle.primary, custom_id="init_add_monster")
     async def add_monster(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
         from cogs5e.initiative import Combat
         try:
@@ -211,11 +223,21 @@ class CombatDashboardView(disnake.ui.View):
             
         await interaction.response.defer()
         try:
-            await combat.end()
-        except:
-            pass
+            summary = combat.get_summary()
             
-        try:
-            await interaction.message.edit(content="Combat has ended.", view=None)
+            # Unpin the original summary message
+            try:
+                await combat.get_summary_msg().unpin()
+            except:
+                pass
+                
+            await combat.end()
+            
+            await interaction.message.edit(content=summary + "\n```-----COMBAT ENDED-----```", view=None)
+            try:
+                await interaction.message.unpin()
+            except:
+                pass
+            await interaction.channel.send(f"**Combat has ended!** (Total Rounds: {combat.round_num})")
         except:
             pass

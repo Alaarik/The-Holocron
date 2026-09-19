@@ -170,19 +170,32 @@ class InitSlashCog(commands.Cog):
         try:
             combat = await Combat.from_ctx(inter)
             if not combat: return []
-            c = combat.get_combatant(target)
-            if not c: return []
+            
+            # If target is specified, only return their effects
+            if target:
+                c = combat.get_combatant(target)
+                if c:
+                    choices = [eff.name for eff in c.get_effects() if user_input.lower() in eff.name.lower()]
+                    return list(dict.fromkeys(choices))[:25]
+            
+            # If no target specified yet, return all effects on ANY combatant
+            all_effects = []
+            for c in combat.combatants:
+                for eff in c.get_effects():
+                    if user_input.lower() in eff.name.lower():
+                        all_effects.append(eff.name)
+            
+            # remove duplicates while preserving order
+            return list(dict.fromkeys(all_effects))[:25]
         except: return []
-        choices = [eff.name for eff in c.effects if user_input.lower() in eff.name.lower()]
-        return choices[:25]
 
 
-    @slash_init.sub_command(name="attack", description="Make an attack as a combatant.")
-    async def init_attack(
+    @slash_init.sub_command(name="action", description="Take an action, bonus action, or attack.")
+    async def init_action(
         self,
         inter: disnake.ApplicationCommandInteraction,
         attacker: str = commands.Param(description="The combatant making the attack."),
-        weapon: str = commands.Param(description="The weapon or attack to use."),
+        action: str = commands.Param(description="The action, feature, or weapon to use."),
         target: str = commands.Param(description="The target of the attack.", default="")
     ):
         from cogs5e.initiative import Combat
@@ -200,9 +213,9 @@ class InitSlashCog(commands.Cog):
         if combat.dm_id != inter.author.id and attacker_combatant.controller_id != inter.author.id:
             return await inter.response.send_message("You do not have permission to control this combatant.", ephemeral=True)
             
-        atk = attacker_combatant.get_attack(weapon)
+        atk = attacker_combatant.get_attack(action)
         if not atk:
-            return await inter.response.send_message(f"Attack '{weapon}' not found on {attacker}.", ephemeral=True)
+            return await inter.response.send_message(f"Action '{action}' not found on {attacker}.", ephemeral=True)
 
         # For monsters, they generally don't have these specific modifiers, but we pass them to CombatView anyway.
         # CombatView expects a 'Character' object with 'attacks'. PlayerCombatant/MonsterCombatant have '.attacks'.
@@ -240,7 +253,7 @@ class InitSlashCog(commands.Cog):
         
         await inter.followup.send(embed=embed)
 
-    @init_attack.autocomplete("attacker")
+    @init_action.autocomplete("attacker")
     async def init_attack_attacker_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
         from cogs5e.initiative import Combat
         try:
@@ -250,7 +263,7 @@ class InitSlashCog(commands.Cog):
         choices = [c.name for c in combat.combatants if user_input.lower() in c.name.lower()]
         return choices[:25]
         
-    @init_attack.autocomplete("weapon")
+    @init_action.autocomplete("action")
     async def init_attack_weapon_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str, attacker: str = ""):
         from cogs5e.initiative import Combat
         try:
@@ -273,8 +286,8 @@ class InitSlashCog(commands.Cog):
                         choices.append(atk.name)
         return choices[:25]
         
-    @init_attack.autocomplete("target")
-    async def init_attack_target_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str, attacker: str = "", weapon: str = ""):
+    @init_action.autocomplete("target")
+    async def init_attack_target_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str, attacker: str = "", action: str = ""):
         from cogs5e.initiative import Combat
         try:
             combat = await Combat.from_ctx(inter)
@@ -288,7 +301,10 @@ class InitSlashCog(commands.Cog):
     async def init_add(
         self,
         inter: disnake.ApplicationCommandInteraction,
-        monster_name: str = commands.Param(description="The name of the monster to add.")
+        monster_name: str = commands.Param(description="The name of the monster to add."),
+        number: str = commands.Param(description="Number of monsters to add", default=None),
+        name: str = commands.Param(description="Custom name for the monster(s)", default=None),
+        position: int = commands.Param(description="Initiative position to place them at", default=None)
     ):
         await inter.response.defer()
         from cogs5e.initiative import Combat
@@ -337,6 +353,194 @@ class InitSlashCog(commands.Cog):
             await msg.edit(content=combat.get_summary(), view=CombatDashboardView(self.bot))
         except:
             pass
+
+
+
+
+    @slash_init.sub_command(name="remove", description="Removes a combatant from initiative.")
+    async def init_remove(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        target: str = commands.Param(description="The name of the combatant to remove")
+    ):
+        await inter.response.defer()
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat:
+                return await inter.followup.send("No active combat found.", ephemeral=True)
+        except Exception:
+            return await inter.followup.send("No active combat found.", ephemeral=True)
+            
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
+            return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
+            
+        init_cog = self.bot.get_cog("InitTracker")
+        if not init_cog: return await inter.followup.send("Module not loaded", ephemeral=True)
+        
+        class FakeCtx:
+            def __init__(self, inter):
+                self.author = inter.author; self.channel = inter.channel; self.guild = inter.guild; self.bot = inter.bot
+            async def send(self, *args, **kwargs): pass
+            async def trigger_typing(self): pass
+            @property
+            def clean_prefix(self): return "/"
+        
+        fake_ctx = FakeCtx(inter)
+        try:
+            await init_cog.remove_combatant(fake_ctx, name=target)
+            from cogs5e.initiative.utils import send_turn_message
+            await send_turn_message(fake_ctx, combat)
+            await inter.followup.send(f"Removed {target} from combat.", ephemeral=True)
+        except Exception as e:
+            await inter.followup.send(f"Error: {str(e)}", ephemeral=True)
+
+    @init_remove.autocomplete("target")
+    async def init_remove_combatant_target_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat: return []
+            choices = [c.name for c in combat.combatants if user_input.lower() in c.name.lower()][:25]
+            return choices
+        except: return []
+
+    @slash_init.sub_command(name="effect", description="Adds an effect to a specific combatant.")
+    async def init_effect(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        target: str = commands.Param(description="The combatant to apply the effect to"),
+        effect: str = commands.Param(description="The effect to apply (e.g. 'Stunned')"),
+        duration: int = commands.Param(description="Duration in rounds", default=None),
+        concentration: bool = commands.Param(description="Does this require concentration?", default=False),
+        end_of_turn: bool = commands.Param(description="Tick duration at the END of turn instead of start?", default=False)
+    ):
+        await inter.response.defer()
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat: return await inter.followup.send("No active combat.", ephemeral=True)
+        except Exception: return await inter.followup.send("No active combat.", ephemeral=True)
+        
+        init_cog = self.bot.get_cog("InitTracker")
+        class FakeCtx:
+            def __init__(self, inter):
+                self.author = inter.author; self.channel = inter.channel; self.guild = inter.guild; self.bot = inter.bot
+            async def send(self, *args, **kwargs): pass
+            async def trigger_typing(self): pass
+            @property
+            def clean_prefix(self): return "/"
+            async def get_combat(self): return combat
+            
+        fake_ctx = FakeCtx(inter)
+        try:
+            args_str = ""
+            if duration is not None:
+                args_str += f" -dur {duration}"
+            if concentration:
+                args_str += " conc"
+            if end_of_turn:
+                args_str += " end"
+            await init_cog.effect(fake_ctx, target, effect, args=args_str)
+            from cogs5e.initiative.utils import send_turn_message
+            await send_turn_message(fake_ctx, combat)
+            await inter.followup.send(f"Added effect '{effect}' to {target}.", ephemeral=True)
+        except Exception as e:
+            await inter.followup.send(f"Error: {str(e)}", ephemeral=True)
+
+    @init_effect.autocomplete("target")
+    async def init_effect_target_auto(self, inter, user_input: str):
+        return await self.init_remove_target_auto(inter, user_input)
+
+    @init_effect.autocomplete("effect")
+    async def init_effect_name_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        conditions = [
+            "Blinded", "Charmed", "Deafened", "Exhaustion", "Frightened", 
+            "Grappled", "Incapacitated", "Invisible", "Paralyzed", 
+            "Petrified", "Poisoned", "Prone", "Restrained", 
+            "Stunned", "Unconscious", "Concentrating"
+        ]
+        return [c for c in conditions if user_input.lower() in c.lower()][:25]
+
+    @slash_init.sub_command(name="name", description="Change the name of a combatant.")
+    async def init_name(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        target: str = commands.Param(description="The current name of the combatant"),
+        name: str = commands.Param(description="The new name for the combatant")
+    ):
+        await inter.response.defer()
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat: return await inter.followup.send("No active combat.", ephemeral=True)
+        except Exception: return await inter.followup.send("No active combat.", ephemeral=True)
+        
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
+            return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
+            
+        init_cog = self.bot.get_cog("InitTracker")
+        class FakeCtx:
+            def __init__(self, inter):
+                self.author = inter.author; self.channel = inter.channel; self.guild = inter.guild; self.bot = inter.bot
+            async def send(self, *args, **kwargs): pass
+            async def trigger_typing(self): pass
+            @property
+            def clean_prefix(self): return "/"
+            async def get_combat(self): return combat
+            
+        fake_ctx = FakeCtx(inter)
+        try:
+            await init_cog.opt(fake_ctx, target, args=f'-name "{name}"')
+            from cogs5e.initiative.utils import send_turn_message
+            await send_turn_message(fake_ctx, combat)
+            await inter.followup.send(f"Changed {target}'s name to {name}.", ephemeral=True)
+        except Exception as e:
+            await inter.followup.send(f"Error: {str(e)}", ephemeral=True)
+
+    @init_name.autocomplete("target")
+    async def init_name_target_auto(self, inter, user_input: str):
+        return await self.init_remove_target_auto(inter, user_input)
+
+    @slash_init.sub_command(name="position", description="Changes a combatant's position in the initiative order.")
+    async def init_position(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        target: str = commands.Param(description="The combatant to move"),
+        position: str = commands.Param(description="The new initiative number (or +/- value)")
+    ):
+        await inter.response.defer()
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat: return await inter.followup.send("No active combat.", ephemeral=True)
+        except Exception: return await inter.followup.send("No active combat.", ephemeral=True)
+        
+        if combat.dm_id != inter.author.id and not inter.permissions.manage_messages:
+            return await inter.followup.send("You are not the DM of this combat.", ephemeral=True)
+            
+        init_cog = self.bot.get_cog("InitTracker")
+        class FakeCtx:
+            def __init__(self, inter):
+                self.author = inter.author; self.channel = inter.channel; self.guild = inter.guild; self.bot = inter.bot
+            async def send(self, *args, **kwargs): pass
+            async def trigger_typing(self): pass
+            @property
+            def clean_prefix(self): return "/"
+            async def get_combat(self): return combat
+            
+        fake_ctx = FakeCtx(inter)
+        try:
+            await init_cog.opt(fake_ctx, target, args=f'-p {position}')
+            from cogs5e.initiative.utils import send_turn_message
+            await send_turn_message(fake_ctx, combat)
+            await inter.followup.send(f"Moved {target} to position {position}.", ephemeral=True)
+        except Exception as e:
+            await inter.followup.send(f"Error: {str(e)}", ephemeral=True)
+
+    @init_position.autocomplete("target")
+    async def init_position_target_auto(self, inter, user_input: str):
+        return await self.init_remove_target_auto(inter, user_input)
 
 
 def setup(bot):

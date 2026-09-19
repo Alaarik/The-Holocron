@@ -810,13 +810,11 @@ class Character(StatBlock):
         embed.description = "\n".join(desc_details)
 
         # attacks
-        atk_str = "\n".join(
-            atk.build_str(self) for atk in sorted(self.attacks.no_activation_types, key=lambda atk: atk.name)
-        )
-        if len(atk_str) > 1000:
-            atk_str = f"{atk_str[:1000]}\n[...]"
-        if atk_str:
-            embed.add_field(name="Attacks", value=atk_str)
+        atk_names = ", ".join(atk.name for atk in sorted(self.attacks.no_activation_types, key=lambda atk: atk.name))
+        if len(atk_names) > 1000:
+            atk_names = f"{atk_names[:1000]}..."
+        if atk_names:
+            embed.add_field(name="Attacks", value=atk_names)
 
         # actions (names only)
         if self.actions:

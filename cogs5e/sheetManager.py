@@ -70,7 +70,7 @@ class SheetView(disnake.ui.View):
 
     @disnake.ui.button(label="Actions", style=disnake.ButtonStyle.secondary)
     async def btn_actions(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        actions_list = sorted(self.character.actions, key=lambda a: a.name)
+        actions_list = sorted(self.character.attacks.no_activation_types, key=lambda a: a.name)
         if not actions_list:
             embeds = [disnake.Embed(title=f"{self.character.name} - Actions", description="No actions found.", color=0x2ecc71)]
         else:
@@ -99,7 +99,7 @@ class SheetView(disnake.ui.View):
     async def btn_powers(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         is_tech = False
         if hasattr(self.character, "levels"):
-            for c, _ in self.character.levels.get_classes():
+            for c, _ in self.character.levels:
                 if c in ("Engineer", "Scout", "Astrotech", "Techcaster"):
                     is_tech = True
                     break

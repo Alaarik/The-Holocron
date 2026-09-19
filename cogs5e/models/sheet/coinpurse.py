@@ -33,7 +33,8 @@ class Coinpurse(HasIntegrationMixin):
         self.cp = cp
 
     def __str__(self):
-        return "\n".join(self.coin_string(coin_type) for coin_type in COIN_TYPES)
+        # SW5e override: only display Credits (gp)
+        return f"**Credits:** {self.gp:,}"
 
     def coin_string(self, coin_type, delta=0):
         if coin_type not in COIN_TYPES:

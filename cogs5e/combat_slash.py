@@ -6,11 +6,11 @@ class CombatSlashCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(name="attack", description="Make an attack roll.")
-    async def slash_attack(
+    @commands.slash_command(name="action", description="Take an action, bonus action, or attack.")
+    async def slash_action(
         self, 
         inter: disnake.ApplicationCommandInteraction,
-        weapon: str = commands.Param(description="The weapon or attack to use."),
+        action: str = commands.Param(description="The action, feature, or weapon to use."),
         target: str = commands.Param(description="The target of the attack.", default="")
     ):
         from cogs5e.models.character import Character
@@ -22,17 +22,17 @@ class CombatSlashCog(commands.Cog):
         if not character:
             return await inter.response.send_message("You do not have an active character.", ephemeral=True)
             
-        atk = character.get_attack(weapon)
+        atk = character.get_attack(action)
         if not atk:
-            return await inter.response.send_message(f"Attack '{weapon}' not found on your sheet.", ephemeral=True)
+            return await inter.response.send_message(f"Action '{action}' not found on your sheet.", ephemeral=True)
 
-        view = CombatView(inter, weapon, target, character)
+        view = CombatView(inter, action, target, character)
         if len(view.valid_modifiers) > 0:
             await inter.response.send_message("Select any modifiers for your attack, then click Roll:", view=view, ephemeral=True)
         else:
             await view.confirm_roll(None, inter)
 
-    @slash_attack.autocomplete("weapon")
+    @slash_action.autocomplete("action")
     async def attack_weapon_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
         from cogs5e.models.character import Character
         try:
@@ -53,7 +53,7 @@ class CombatSlashCog(commands.Cog):
                             choices.append(atk.name)
         return choices[:25]
         
-    @slash_attack.autocomplete("target")
+    @slash_action.autocomplete("target")
     async def attack_target_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
         from cogs5e.initiative import Combat
         try:

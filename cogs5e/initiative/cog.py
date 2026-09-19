@@ -1575,7 +1575,7 @@ class InitTracker(commands.Cog):
                 )
             except NoSelectionElements:
                 return await ctx.send(
-                    f"No matching spells found in {combatant.name}'s spellbook. Cast again "
+                    f"No matching powers found in {combatant.name}'s powerbook. Cast again "
                     "with the `-i` argument to ignore restrictions!"
                 )
         else:

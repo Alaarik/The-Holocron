@@ -1,7 +1,9 @@
+import os
 import logging
 import re
 import aiohttp
 import json
+import disnake
 import math
 
 from cogs5e.models.errors import ExternalImportError
@@ -16,7 +18,37 @@ log = logging.getLogger(__name__)
 
 SW5E_URL_RE = re.compile(r"https?://(?:www\.)?sw5e\.com/characters?/([a-zA-Z0-9\-]+)")
 
+class ChoiceView(disnake.ui.View):
+    def __init__(self, ctx, options):
+        super().__init__(timeout=300)
+        self.ctx = ctx
+        self.choice = None
+        for opt in options:
+            btn = disnake.ui.Button(label=opt, style=disnake.ButtonStyle.primary)
+            btn.callback = self.make_callback(opt)
+            self.add_item(btn)
+            
+    def make_callback(self, opt):
+        async def callback(inter):
+            if inter.author.id != self.ctx.author.id:
+                return await inter.response.send_message("This prompt is not for you.", ephemeral=True)
+            self.choice = opt
+            await inter.response.defer()
+            self.stop()
+        return callback
+
+async def prompt_choice(ctx, prompt_text, options):
+    view = ChoiceView(ctx, options)
+    msg = await ctx.send(prompt_text, view=view)
+    await view.wait()
+    try:
+        await msg.delete()
+    except:
+        pass
+    return view.choice
+
 class SW5ESheetParser:
+
     def __init__(self, character_id=None, json_data=None):
         self.character_id = character_id
         self.json_data = json_data
@@ -79,7 +111,7 @@ class SW5ESheetParser:
         spellbook = Spellbook()
         consumables = []
         attacks_list = []
-        coinpurse = Coinpurse()
+        coinpurse = Coinpurse(gp=char_data.get("credits", 0))
         
         def get_die_size(lvl):
             if lvl >= 17: return 12
@@ -215,6 +247,74 @@ class SW5ESheetParser:
                 "maxv": max_tech,
                 "value": max_tech - current.get("techPointsUsed", 0)
             })
+            
+        def is_action_text(text):
+            t = text.lower()
+            return "as an action" in t or "as a bonus action" in t or "use your reaction" in t or "expend a use" in t or "as a reaction" in t
+
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            with open(os.path.join(base_dir, "res", "classes.json"), "r") as f_cls:
+                classes_data = json.load(f_cls)
+            with open(os.path.join(base_dir, "res", "subclasses.json"), "r") as f_sub:
+                subclasses_data = json.load(f_sub)
+                
+            async def parse_and_prompt(text, max_level):
+                features = re.findall(r'###\s+([^\n]+)\r?\n_?\*\*[^\*]+\*\*[:\s]*(\d+)[A-Za-z]{2} level_?\r?\n(.*?)(?=\n###\s|\Z)', text, re.DOTALL)
+                for fname, flevel, fdesc in features:
+                    if int(flevel) > max_level: continue
+                    options = re.findall(r'####\s+([^\r\n]+)\r?\n(.*?)(?=\n####\s|\Z)', fdesc, re.DOTALL)
+                    has_action_option = any(is_action_text(odesc) for oname, odesc in options)
+                    is_choice = options and len(options) >= 2 and any(k in fdesc.lower() for k in ["choose", "choice", "one of the following"])
+                    
+                    if is_choice and has_action_option:
+                        choice_names = [o[0].strip() for o in options]
+                        selected = None
+                        try:
+                            old_c = await ctx.get_character()
+                            if old_c:
+                                for cname_opt in choice_names:
+                                    if any(a.name.lower() == cname_opt.lower() for a in old_c.attacks):
+                                        selected = cname_opt
+                                        break
+                        except: pass
+                        if not selected:
+                            selected = await prompt_choice(ctx, f"Choose your **{fname.strip()}** option:", choice_names)
+                        if not selected:
+                            continue
+                        for oname, odesc in options:
+                            if oname.strip() == selected and is_action_text(odesc):
+                                atk = Attack(selected, old_to_automation(damage="", details=odesc.strip()[:1000]))
+                                atk.list_display_override = odesc.strip()[:100] + ("..." if len(odesc.strip()) > 100 else "")
+                                attacks_list.append(atk)
+                    elif not is_choice:
+                        if is_action_text(fdesc) and not options:
+                            atk = Attack(fname.strip(), old_to_automation(damage="", details=fdesc.strip()[:1000]))
+                            atk.list_display_override = fdesc.strip()[:100] + ("..." if len(fdesc.strip()) > 100 else "")
+                            attacks_list.append(atk)
+                        for oname, odesc in options:
+                            if is_action_text(odesc):
+                                atk = Attack(oname.strip(), old_to_automation(damage="", details=odesc.strip()[:1000]))
+                                atk.list_display_override = odesc.strip()[:100] + ("..." if len(odesc.strip()) > 100 else "")
+                                attacks_list.append(atk)
+
+            for c in char_data.get("classes", []):
+                cname = c.get("name", "")
+                clevel = c.get("levels", 0)
+                arch = c.get("archetype", {}).get("name", "")
+                
+                for cd in classes_data:
+                    if cd.get("name") == cname:
+                        await parse_and_prompt(cd.get("classFeatureText", ""), clevel)
+                        break
+                        
+                for sub in subclasses_data:
+                    if sub.get("name") == arch:
+                        await parse_and_prompt(sub.get("text", ""), clevel)
+                        break
+        except Exception as e:
+            log.error(f"Failed to parse dynamic actions: {e}")
+            await ctx.send(f"DEBUG ERROR in SW5E Parsing: {e}")
             
         attacks = AttackList(attacks_list)
             
