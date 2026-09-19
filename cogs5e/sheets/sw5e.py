@@ -316,6 +316,38 @@ class SW5ESheetParser:
             log.error(f"Failed to parse dynamic actions: {e}")
             await ctx.send(f"DEBUG ERROR in SW5E Parsing: {e}")
             
+        # Parse equipment to add weapons to actions/attacks
+        from gamedata.compendium import compendium
+        
+        # Always add Unarmed Strike
+        attacks_list.append(Attack("Unarmed Strike", old_to_automation(damage="1", details="Unarmed Strike")))
+        
+        for eq in char_data.get("equipment", []) + char_data.get("customEquipment", []):
+            if eq.get("equipped", False):
+                eq_name = eq.get("name", "")
+                if not eq_name: continue
+                
+                # Check compendium
+                weapon = next((w for w in compendium.weapons if w.name.lower() == eq_name.lower()), None)
+                if weapon:
+                    # attempt to get damage
+                    damage = getattr(weapon, "damage", getattr(weapon, "damage_dice", getattr(weapon, "damageDice", "")))
+                    if hasattr(weapon, "properties"):
+                        props = getattr(weapon, "properties", [])
+                        if isinstance(props, list):
+                            desc = ", ".join(p.get("name", "") if isinstance(p, dict) else str(p) for p in props)
+                        else:
+                            desc = str(props)
+                    else:
+                        desc = getattr(weapon, "desc", getattr(weapon, "description", ""))
+                    atk = Attack(eq_name, old_to_automation(damage=str(damage), details=desc[:1000]))
+                    attacks_list.append(atk)
+                else:
+                    # Generic attack if not found in compendium?
+                    # The user wants them to show up!
+                    atk = Attack(eq_name, old_to_automation(damage="", details="Custom Weapon"))
+                    attacks_list.append(atk)
+            
         attacks = AttackList(attacks_list)
             
         return Character(

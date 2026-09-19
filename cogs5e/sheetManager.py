@@ -133,22 +133,57 @@ class SheetView(disnake.ui.View):
                 
         embed = disnake.Embed(title=title, color=0x3498db)
         
+        prof = self.character.stats.prof_bonus
+        wis_mod = self.character.stats.get_mod("wis")
+        cha_mod = self.character.stats.get_mod("cha")
+        int_mod = self.character.stats.get_mod("int")
+        
+        light_atk = prof + wis_mod
+        light_dc = 8 + prof + wis_mod
+        
+        dark_atk = prof + cha_mod
+        dark_dc = 8 + prof + cha_mod
+        
+        univ_mod = max(wis_mod, cha_mod)
+        univ_atk = prof + univ_mod
+        univ_dc = 8 + prof + univ_mod
+        
+        tech_atk = prof + int_mod
+        tech_dc = 8 + prof + int_mod
+
         embed.add_field(name=p_label, value=points_val, inline=True)
-        embed.add_field(name="Power Attack Bonus", value=str(self.character.spellbook.sab), inline=True)
-        embed.add_field(name="DC", value=str(self.character.spellbook.dc), inline=True)
+        
+        if is_tech:
+            embed.add_field(name="Tech Atk / DC", value=f"{tech_atk:+d} / {tech_dc}", inline=True)
+        else:
+            embed.add_field(name="Light Atk / DC", value=f"{light_atk:+d} / {light_dc}", inline=True)
+            embed.add_field(name="Dark Atk / DC", value=f"{dark_atk:+d} / {dark_dc}", inline=True)
+            embed.add_field(name="Univ Atk / DC", value=f"{univ_atk:+d} / {univ_dc}", inline=True)
         
         grouped = {}
         from gamedata.compendium import compendium
         for spell in self.character.spellbook.spells:
             lvl = spell.level
+            found = next((s for s in compendium.spells if s.name.lower() == spell.name.lower()), None)
             if lvl is None:
-                # search compendium
-                found = next((s for s in compendium.spells if s.name.lower() == spell.name.lower()), None)
                 if found:
                     lvl = found.level
             lvl = lvl or 0
             if lvl not in grouped: grouped[lvl] = []
-            grouped[lvl].append(f"**{spell.name.title()}**" + (" *(Prepared)*" if spell.prepared else ""))
+            
+            if is_tech:
+                atk_dc_str = f" *(+{tech_atk} / DC {tech_dc})*"
+            else:
+                align = found.components.lower() if found and getattr(found, 'components', None) else ""
+                if "light" in align:
+                    atk_dc_str = f" *(+{light_atk} / DC {light_dc})*"
+                elif "dark" in align:
+                    atk_dc_str = f" *(+{dark_atk} / DC {dark_dc})*"
+                else:
+                    atk_dc_str = f" *(+{univ_atk} / DC {univ_dc})*"
+            
+            prep_str = " *(Prepared)*" if spell.prepared else ""
+            grouped[lvl].append(f"**{spell.name.title()}**{atk_dc_str}{prep_str}")
             
         if not grouped:
             embed.add_field(name="Powers Known", value="No powers known.", inline=False)
