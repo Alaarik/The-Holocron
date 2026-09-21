@@ -362,15 +362,18 @@ class GoogleSheet(SheetLoaderABC):
         max_force = 0
         max_tech = 0
         
+        normalized_classes = {}
         for cname, clevel in levels.classes.items():
-            cname = cname.title()
-            if cname == "Consular": max_force += clevel * 4
-            elif cname == "Sentinel": max_force += clevel * 3
-            elif cname == "Guardian": max_force += clevel * 2
-            elif cname == "Engineer": max_tech += clevel * 4
-            elif cname == "Scout": max_tech += clevel * 3
+            base_cname = cname.title().replace("light", "").replace("Light", "").replace("dark", "").replace("Dark", "").strip()
+            normalized_classes[base_cname] = clevel
             
-            if cname == "Guardian" and clevel >= 1:
+        for cname, clevel in normalized_classes.items():
+            if cname in ["Consular", "Guardian", "Sentinel"]:
+                max_force += clevel
+            if cname in ["Engineer", "Scout"]:
+                max_tech += clevel
+            
+            if cname in ["Guardian", "Consular"] and clevel >= 3:
                 uses = 2
                 if clevel >= 5: uses = 3
                 if clevel >= 9: uses = 4
