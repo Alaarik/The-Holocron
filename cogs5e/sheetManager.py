@@ -314,7 +314,6 @@ class SheetView(disnake.ui.View):
         await inter.response.edit_message(embeds=[embed], view=self)
 
 class SheetManager(commands.Cog):
-    @commands.slash_command(name="sheet", description="View your interactive character sheet.")
     @commands.slash_command(name="update", description="Update your character from its upstream sheet.")
     async def slash_update(self, inter: disnake.ApplicationCommandInteraction, character_name: str = None):
         await inter.response.defer()
@@ -374,6 +373,7 @@ class SheetManager(commands.Cog):
         await Character.delete(inter, inter.author.id, char.upstream)
         await inter.response.send_message(f"Successfully deleted character '{char.name}'.")
 
+    @commands.slash_command(name="sheet", description="View your interactive character sheet.")
     async def slash_sheet(self, inter: disnake.ApplicationCommandInteraction):
         try:
             char = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
