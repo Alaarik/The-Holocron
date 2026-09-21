@@ -400,6 +400,20 @@ class GoogleSheet(SheetLoaderABC):
                 "maxv": max_tech,
                 "value": max_tech
             })
+            
+        # Hit Dice Generation
+        for cname, clevel in normalized_classes.items():
+            hit_die_size = 8 # default
+            if cname.title() in ["Berserker"]: hit_die_size = 12
+            elif cname.title() in ["Fighter", "Guardian", "Scout"]: hit_die_size = 10
+            elif cname.title() in ["Engineer", "Consular", "Scholar", "Operative", "Monk", "Sentinel"]: hit_die_size = 8
+            
+            consumables.append({
+                "name": f"Hit Dice (d{hit_die_size})",
+                "maxv": clevel,
+                "value": clevel,
+                "reset": "long"
+            })
 
         spellbook = self.get_spellbook()
         live = None
