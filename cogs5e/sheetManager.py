@@ -314,6 +314,37 @@ class SheetView(disnake.ui.View):
         await inter.response.edit_message(embeds=[embed], view=self)
 
 class SheetManager(commands.Cog):
+    @commands.slash_command(name="import", description="Import a character from a SW5e Google Sheet.")
+    async def slash_import(self, inter: disnake.ApplicationCommandInteraction, url: str):
+        await inter.response.defer()
+        
+        try:
+            url = extract_gsheet_id_from_url(url)
+        except ExternalImportError:
+            return await inter.edit_original_message(content="That doesn't look like a valid Google Sheet URL. Please double check the link and try again.")
+            
+        parser = GoogleSheet(url)
+        prefix = "google"
+        
+        # Confirm overwrite if character exists
+        conflict = await self.bot.mdb.characters.find_one({"owner": str(inter.author.id), "upstream": f"{prefix}-{url}"})
+        if conflict:
+            return await inter.edit_original_message(content="This character has already been imported! Please use `/update` instead.")
+            
+        try:
+            character = await parser.load_character(inter, argparse(""))
+        except ExternalImportError as eep:
+            return await inter.edit_original_message(content=f"Error loading character: {eep}")
+        except Exception as eep:
+            return await inter.edit_original_message(content=f"Error loading character: {eep}")
+            
+        character.options.version = "2024" # Default for SW5e
+            
+        await character.commit(inter)
+        await character.set_active(inter)
+        
+        await inter.edit_original_message(content=f"Successfully imported {character.name}!", embed=character.get_sheet_embed())
+
     @commands.slash_command(name="update", description="Update your character from its upstream sheet.")
     async def slash_update(self, inter: disnake.ApplicationCommandInteraction, character_name: str = None):
         await inter.response.defer()
@@ -1191,129 +1222,6 @@ class SheetManager(commands.Cog):
                 f"If you only wanted to update your character, run `{ctx.prefix}update` instead.",
             )
         return True
-
-    @commands.command(name="import")
-    @commands.max_concurrency(1, BucketType.user)
-    async def import_sheet(self, ctx, url: str = None, version: str = None, *, args=""):
-        """
-        Loads a character sheet from one of the accepted sites:
-            [D&D Beyond](https://www.dndbeyond.com/)
-            [Dicecloud v1](https://v1.dicecloud.com/)
-            [Dicecloud v2](https://dicecloud.com/)
-            [GSheet v2.1](https://gsheet2.avrae.io) (auto)
-            [GSheet v1.4](https://gsheet.avrae.io) (manual)
-
-        __Valid Arguments__
-        `-nocc` - Do not automatically create custom counters for class resources and features.
-        `-noprep` - Import all known spells as prepared.
-
-        __Valid Versions__
-        `2014` - 2014 D&D 5e Ruleset.
-        `2024` - 2024 D&D 5e Ruleset.
-
-        __Sheet-specific Notes__
-        D&D Beyond:
-            Private sheets can be imported if you have linked your DDB and Discord accounts.  Otherwise, the sheet needs to be publicly shared.
-
-        Dicecloud v1:
-            Share your character with `avrae` on Dicecloud v1 to import private sheets, and give edit permissions for live updates.
-
-        Dicecloud v2:
-            Share your character with `avrae` on Dicecloud v2 to import private sheets. Tag actions, spells, and features with `avrae:no_import` if you don't want them to be imported, spells with `avrae:no_action` or `avrae:no_spell` if you don't want the spell imported as an action or into the spellbook respectively, and actions with `avrae:parse_only` if you don't want them to be loaded from Beyond.
-
-        Gsheet:
-            The sheet must be shared with directly with Avrae or be publicly viewable to anyone with the link.
-            Avrae's google account is `avrae-320@avrae-bot.iam.gserviceaccount.com`.
-
-
-        """  # noqa: E501
-        
-        # Handle attachment without URL
-        if not url:
-            return await ctx.send("You must provide a URL to a SW5e Google Sheet to import.")
-            
-        if url in VALID_VERSIONS:
-            args = f"{version} {args}".strip() if version else args
-            version = url
-            url = None
-            
-        if not url:
-            return await ctx.send("You must provide a URL to a SW5e Google Sheet to import.")
-            
-        try:
-            serv_settings = await ctx.get_server_settings()
-            if version is None:
-                if serv_settings:
-                    version = serv_settings.version
-                else:
-                    version = "2024"
-            elif version not in VALID_VERSIONS[:2]:
-                await ctx.send(
-                    f"Character-specific version override {version} is not valid. Character will be imported using default version.  You can amend this via `{ctx.prefix}csettings` "
-                )
-                if serv_settings:
-                    version = serv_settings.version
-                else:
-                    version = "2024"
-            else:
-                # version was passed in, check allow_character_override
-                if serv_settings and version != serv_settings.version and not serv_settings.allow_character_override:
-                    version = serv_settings.version
-                    await ctx.send(
-                        f"Character-specific version override is disabled. This character was imported as {version}, If you think this is incorrect, please contact a Server Admin."
-                    )
-                else:
-                    version = version
-        except:
-            # We will get here when done in DM's
-            version = version if version and version in VALID_VERSIONS[:2] else "2024"
-
-        if url:
-            url = await self._check_url(ctx, url)  # check for < >
-            
-        if url and (dicecloud_match := DICECLOUD_URL_RE.match(url)):
-            loading = await ctx.send("Loading character data from Dicecloud...")
-            url = dicecloud_match.group(1)
-            prefix = "dicecloud"
-            parser = DicecloudParser(url)
-        elif url and (dicecloudv2_match := DICECLOUDV2_URL_RE.match(url)):
-            loading = await ctx.send("Loading character data from Dicecloud V2...")
-            url = dicecloudv2_match.group(1)
-            prefix = "dicecloudv2"
-            parser = DicecloudV2Parser(url)
-        elif url:
-            try:
-                url = extract_gsheet_id_from_url(url)
-            except ExternalImportError:
-                if re.match(
-                    r"https?://(?:www\.)?bestiarybuilder.com/(?:bestiary-viewer|bestiary/view|bestiary/edit)/([0-9a-f]+)",  # noqa: E501
-                    url,
-                ) or re.match(
-                    r"https?://(?:www\.)?critterdb.com(?::443|:80)?.*#/(published)?bestiary/view/([0-9a-f]+)", url
-                ):
-                    return await ctx.send("Bestiaries must be imported with the `!bestiary import` command instead.")
-                else:
-                    return await ctx.send("Sheet type did not match accepted formats.")
-            loading = await ctx.send("Loading character data from Google...")
-            prefix = "google"
-            parser = GoogleSheet(url)
-        else:
-            return await ctx.send("Sheet type or file did not match accepted formats. Please provide a Google Sheet URL.")
-
-        override = await self._confirm_overwrite(ctx, f"{prefix}-{url}")
-        if not override:
-            return await ctx.send("Character overwrite unconfirmed. Aborting.")
-
-        # Load the parsed sheet
-        character = await self._load_sheet(ctx, parser, args, loading, version)
-
-    @commands.command(hidden=True, aliases=["gsheet", "dicecloud"])
-    @commands.max_concurrency(1, BucketType.user)
-    async def beyond(self, ctx, url: str, *, args=""):
-        """
-        This is an old command and has been replaced. Use `!import` instead!
-        """
-        await self.import_sheet(ctx, url, args=args)
 
     @staticmethod
     async def _load_sheet(ctx, parser, args, loading, version):
