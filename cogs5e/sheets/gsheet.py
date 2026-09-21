@@ -436,14 +436,6 @@ class GoogleSheet(SheetLoaderABC):
         )
         return character
 
-    async def get_character(self):
-        if GoogleSheet.g_client is None:
-            await self._init_gsheet_client()
-        elif GoogleSheet._is_expired():
-            await self._refresh_google_token()
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self._gchar)
-
     # calculator functions
     def get_description(self):
         if self.character_data is None:
