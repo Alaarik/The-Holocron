@@ -29,3 +29,7 @@ if __name__ == "__main__":
     fetch_data("monster", "monsters.json")
     fetch_data("equipment", "adventuring-gear.json")  # Might need splitting or custom logic
     fetch_data("enhancedItem", "magic-items.json")
+    fetch_data("fightingStyle", "fightingStyles.json")
+    fetch_data("fightingMastery", "fightingMasteries.json")
+    fetch_data("lightsaberForm", "lightsaberForms.json")
+    fetch_data("maneuvers", "maneuvers.json")

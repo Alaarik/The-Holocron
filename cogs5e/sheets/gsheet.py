@@ -152,13 +152,13 @@ BASE_ABILITY_CHECKS = (  # list of (MOD_CELL/ROW, SKILL_NAME, ADV_CELL)
 SKILL_CELL_MAP = (  # list of (MOD_CELL/ROW, SKILL_NAME, ADV_CELL)
     (25, "acrobatics", None),
     (26, "animalHandling", None),
-    (27, "arcana", None),
+    (27, "technology", None),
     (28, "athletics", None),
     (22, "charismaSave", None),
     (19, "constitutionSave", None),
     (29, "deception", None),
     (18, "dexteritySave", None),
-    (30, "history", None),
+    (30, "lore", None),
     ("V12", "initiative", "V11"),
     (31, "insight", None),
     (20, "intelligenceSave", None),
@@ -169,7 +169,7 @@ SKILL_CELL_MAP = (  # list of (MOD_CELL/ROW, SKILL_NAME, ADV_CELL)
     (36, "perception", None),
     (37, "performance", None),
     (38, "persuasion", None),
-    (39, "religion", None),
+    (39, "piloting", None),
     (40, "sleightOfHand", None),
     (41, "stealth", None),
     (17, "strengthSave", None),
@@ -389,6 +389,49 @@ class GoogleSheet(SheetLoaderABC):
         overrides = {}
         death_saves = {}
         consumables = []
+        
+        # SW5e: Add Force Points, Tech Points, Channel the Force
+        max_force = 0
+        max_tech = 0
+        
+        for cname, clevel in levels.classes.items():
+            cname = cname.title()
+            if cname == "Consular": max_force += clevel * 4
+            elif cname == "Sentinel": max_force += clevel * 3
+            elif cname == "Guardian": max_force += clevel * 2
+            elif cname == "Engineer": max_tech += clevel * 4
+            elif cname == "Scout": max_tech += clevel * 3
+            
+            if cname == "Guardian" and clevel >= 1:
+                uses = 2
+                if clevel >= 5: uses = 3
+                if clevel >= 9: uses = 4
+                if clevel >= 13: uses = 5
+                if clevel >= 17: uses = 6
+                consumables.append({
+                    "name": "Channel the Force",
+                    "maxv": uses,
+                    "value": uses,
+                    "reset": "short"
+                })
+
+        if max_force > 0:
+            force_mod = max(stats.get_mod("wis"), stats.get_mod("cha"))
+            max_force = max(0, max_force + force_mod)
+            consumables.append({
+                "name": "Force Points",
+                "maxv": max_force,
+                "value": max_force
+            })
+            
+        if max_tech > 0:
+            tech_mod = stats.get_mod("int")
+            max_tech = max(0, max_tech + tech_mod)
+            consumables.append({
+                "name": "Tech Points",
+                "maxv": max_tech,
+                "value": max_tech
+            })
 
         spellbook = self.get_spellbook()
         live = None
@@ -535,6 +578,20 @@ class GoogleSheet(SheetLoaderABC):
                     level_dict[classname] = classlevel
                 else:  # classes should be top-aligned
                     break
+        
+        # SW5e Fallback: Parse T5 if additional sheet is missing or empty
+        if not level_dict:
+            try:
+                class_str = str(self.character_data.value("T5") or "")
+                # E.g. "Shien/Djem So Formn GuardianLight 10" or "Fighter 2 / Guardian 8"
+                matches = re.findall(r'([A-Za-z\s/]+?)\s+(\d+)', class_str)
+                for name, lvl in matches:
+                    for c in ["Guardian", "Consular", "Sentinel", "Fighter", "Operative", "Scholar", "Monk", "Scout", "Engineer", "Berserker"]:
+                        if c.lower() in name.lower():
+                            level_dict[c] = int(lvl)
+            except:
+                pass
+
         levels = Levels(level_dict, total_level)
         return levels
 

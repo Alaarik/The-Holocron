@@ -26,7 +26,6 @@ from cogs5e.models.character import Character
 from cogs5e.models.embeds import EmbedWithAuthor
 from cogs5e.models.errors import ExternalImportError, NoCharacter
 from cogs5e.models.sheet.attack import Attack, AttackList
-from cogs5e.sheets.sw5e import SW5E_URL_RE, SW5ESheetParser
 from cogs5e.sheets.dicecloud import DICECLOUD_URL_RE, DicecloudParser
 from cogs5e.sheets.dicecloudv2 import DICECLOUDV2_URL_RE, DicecloudV2Parser
 from cogs5e.sheets.gsheet import GoogleSheet, extract_gsheet_id_from_url
@@ -271,11 +270,7 @@ class SheetView(disnake.ui.View):
         
         # Coins / Credits
         if self.character.coinpurse:
-            # Check if this is an SW5e sheet to rename gp to Credits visually
-            if getattr(self.character, "sheet_type", "") == "sw5e":
-                embed.add_field(name="Wallet", value=f"**Credits:** {self.character.coinpurse.gp:,}", inline=False)
-            else:
-                embed.add_field(name="Wallet", value=str(self.character.coinpurse), inline=False)
+            embed.add_field(name="Wallet", value=f"**Credits:** {self.character.coinpurse.gp:,}", inline=False)
             
         # Bags / Items
         try:
@@ -984,11 +979,6 @@ class SheetManager(commands.Cog):
     @commands.command()
     @commands.max_concurrency(1, BucketType.user)
     async def update(self, ctx, *, args=""):
-        import importlib
-        import cogs5e.sheets.sw5e
-        importlib.reload(cogs5e.sheets.sw5e)
-        from cogs5e.sheets.sw5e import SW5ESheetParser
-        global SW5ESheetParser
         """
         Updates the current character sheet, preserving all settings.
         __Valid Arguments__
@@ -1016,15 +1006,9 @@ class SheetManager(commands.Cog):
         elif sheet_type == "google":
             parser = GoogleSheet(_id)
             loading = await ctx.send("Updating character data from Google...")
-        elif sheet_type == "sw5e":
-            if not ctx.message.attachments or not ctx.message.attachments[0].filename.endswith(".json"):
-                return await ctx.send("To update a SW5e character, you must attach the new exported .json file to the `!update` command.")
-            loading = await ctx.send("Updating character data from JSON attachment...")
-            json_bytes = await ctx.message.attachments[0].read()
-            parser = SW5ESheetParser(json_data=json_bytes.decode('utf-8'))
         elif sheet_type == "beyond": return await ctx.send("DDB not supported")
         else:
-            return await ctx.send(f"Error: Unknown sheet type {sheet_type}.")
+            return await ctx.send(f"Error: Unknown sheet type {sheet_type}. If you were using a SW5e JSON character, please re-import using a Google Sheet URL.")
 
         try:
             character = await parser.load_character(ctx, args)
@@ -1173,16 +1157,16 @@ class SheetManager(commands.Cog):
         """  # noqa: E501
         
         # Handle attachment without URL
-        if not url and not ctx.message.attachments:
-            return await ctx.send("You must provide a URL or attach a SW5e JSON character file to import.")
+        if not url:
+            return await ctx.send("You must provide a URL to a SW5e Google Sheet to import.")
             
         if url in VALID_VERSIONS:
             args = f"{version} {args}".strip() if version else args
             version = url
             url = None
             
-        if not url and not ctx.message.attachments:
-            return await ctx.send("You must provide a URL or attach a SW5e JSON character file to import.")
+        if not url:
+            return await ctx.send("You must provide a URL to a SW5e Google Sheet to import.")
             
         try:
             serv_settings = await ctx.get_server_settings()
@@ -1215,21 +1199,7 @@ class SheetManager(commands.Cog):
         if url:
             url = await self._check_url(ctx, url)  # check for < >
             
-        # Sheets in order: SW5e, Dicecloud, Gsheet
-        if ctx.message.attachments and ctx.message.attachments[0].filename.endswith(".json"):
-            loading = await ctx.send("Loading character data from JSON attachment...")
-            prefix = "sw5e"
-            json_bytes = await ctx.message.attachments[0].read()
-            import json
-            parsed = json.loads(json_bytes.decode('utf-8'))
-            url = parsed.get("id") or parsed.get("localId", "upload")
-            parser = SW5ESheetParser(json_data=json_bytes.decode('utf-8'))
-        elif url and (sw5e_match := SW5E_URL_RE.match(url)):
-            loading = await ctx.send("Loading character data from SW5e Builder...")
-            prefix = "sw5e"
-            url = sw5e_match.group(1)
-            parser = SW5ESheetParser(url)
-        elif url and (dicecloud_match := DICECLOUD_URL_RE.match(url)):
+        if url and (dicecloud_match := DICECLOUD_URL_RE.match(url)):
             loading = await ctx.send("Loading character data from Dicecloud...")
             url = dicecloud_match.group(1)
             prefix = "dicecloud"
@@ -1256,7 +1226,7 @@ class SheetManager(commands.Cog):
             prefix = "google"
             parser = GoogleSheet(url)
         else:
-            return await ctx.send("Sheet type or file did not match accepted formats. Please attach a .json file.")
+            return await ctx.send("Sheet type or file did not match accepted formats. Please provide a Google Sheet URL.")
 
         override = await self._confirm_overwrite(ctx, f"{prefix}-{url}")
         if not override:
