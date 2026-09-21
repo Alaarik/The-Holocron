@@ -33,3 +33,4 @@ ddtrace==4.8.4
 
 # BI Data Collection
 confluent-kafka==2.8.0
+openpyxl==3.1.2

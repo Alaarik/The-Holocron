@@ -216,29 +216,35 @@ def letter2num(letters, zbase=True):
 class TempCharacter:
     def __init__(self, worksheet):
         self.worksheet = worksheet
-        self.values = worksheet.get_all_values()
-        self.unformatted_values = self._get_all_unformatted_values()
+        self.values = self._get_all_values()
+        self.unformatted_values = self.values
+        
+    def _get_all_values(self):
+        max_row = self.worksheet.max_row
+        max_col = self.worksheet.max_column
+        grid = []
+        for r in range(1, max_row + 1):
+            row_data = []
+            for c in range(1, max_col + 1):
+                val = self.worksheet.cell(row=r, column=c).value
+                if val is None:
+                    row_data.append("")
+                else:
+                    row_data.append(str(val))
+            grid.append(row_data)
+        return grid
 
-    def _get_all_unformatted_values(self):
-        data = self.worksheet.spreadsheet.values_get(
-            self.worksheet.title, params={"valueRenderOption": "UNFORMATTED_VALUE"}
-        )
-        try:
-            return fill_gaps(data["values"])
-        except KeyError:
-            return []
-
-    @staticmethod
-    def _get_value(source, pos):
+    def _get_value(self, source, pos):
         _pos = POS_RE.match(pos)
         if _pos is None:
             raise ValueError("No A1-style position found.")
         col = letter2num(_pos.group(1))
         row = int(_pos.group(2)) - 1
-        if row > len(source) or col > len(source[row]):
-            raise IndexError(f"Cell `{pos}` is out of bounds.")
+        
+        if row >= len(source) or col >= len(source[row]):
+            return ""
+            
         value = source[row][col]
-        log.debug(f"Cell {pos}: {value}")
         return value
 
     def value(self, pos):
@@ -248,22 +254,20 @@ class TempCharacter:
         return self._get_value(self.unformatted_values, pos)
 
     def value_range(self, rng):
-        """Returns a list of values in a range."""
         start, end = rng.split(":")
         (row_offset, column_offset) = a1_to_rowcol(start)
         (last_row, last_column) = a1_to_rowcol(end)
 
         out = []
-        for col in self.values[row_offset - 1 : last_row]:
-            out.extend(col[column_offset - 1 : last_column])
+        for row in self.values[row_offset - 1 : last_row]:
+            # pad row if necessary
+            if len(row) < last_column:
+                row = row + [""] * (last_column - len(row))
+            out.extend(row[column_offset - 1 : last_column])
         return out
 
 
 class GoogleSheet(SheetLoaderABC):
-    g_client = None
-    _client_initializing = False
-    _token_expiry = None
-
     def __init__(self, url):
         super(GoogleSheet, self).__init__(url)
         self.args = None
@@ -275,91 +279,52 @@ class GoogleSheet(SheetLoaderABC):
         # cache
         self._stats = None
 
-    # google api stuff
-    @staticmethod
-    @contextmanager
-    def _client_lock():
-        if GoogleSheet._client_initializing:
-            raise ExternalImportError("I am still connecting to google. Try again in a few seconds.")
-        GoogleSheet._client_initializing = True
-        yield
-        GoogleSheet._client_initializing = False
+    async def get_character(self):
+        return await self._gchar()
 
-    @staticmethod
-    async def _init_gsheet_client():
-        with GoogleSheet._client_lock():
-
-            def _():
-                if config.GOOGLE_SERVICE_ACCOUNT is not None:
-                    credentials = Credentials.from_service_account_info(
-                        json.loads(config.GOOGLE_SERVICE_ACCOUNT), scopes=SCOPES
-                    )
-                else:
-                    credentials = Credentials.from_service_account_file("avrae-google.json", scopes=SCOPES)
-                return gspread.authorize(credentials)
-
-            try:
-                GoogleSheet.g_client = await asyncio.get_event_loop().run_in_executor(None, _)
-            except:
-                GoogleSheet._client_initializing = False
-                raise
-        # noinspection PyProtectedMember
-        GoogleSheet._token_expiry = datetime.datetime.now() + datetime.timedelta(
-            seconds=google.oauth2.service_account._DEFAULT_TOKEN_LIFETIME_SECS
-        )
-        log.info("Logged in to google")
-
-    @staticmethod
-    async def _refresh_google_token():
-        with GoogleSheet._client_lock():
-            try:
-                await asyncio.get_event_loop().run_in_executor(None, GoogleSheet.g_client.http_client.login)
-                GoogleSheet._token_expiry = datetime.datetime.now() + datetime.timedelta(
-                    seconds=google.oauth2.service_account._DEFAULT_TOKEN_LIFETIME_SECS
-                )
-            except:
-                GoogleSheet._client_initializing = False
-                raise
-        log.info("Refreshed google token")
-
-    @staticmethod
-    def _is_expired():
-        return datetime.datetime.now() >= GoogleSheet._token_expiry
-
-    # load character data
-    def _gchar(self):
-        doc = GoogleSheet.g_client.open_by_key(self.url)
-        self.character_data = TempCharacter(doc.sheet1)
+    async def _gchar(self):
+        export_url = f"https://docs.google.com/spreadsheets/d/{self.url}/export?format=xlsx"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(export_url) as resp:
+                if resp.status != 200:
+                    raise ExternalImportError("Failed to download Google Sheet. Ensure it is shared to 'Anyone with the link can view'.")
+                data = await resp.read()
+                
+        try:
+            wb = openpyxl.load_workbook(BytesIO(data), data_only=True)
+        except Exception:
+            raise ExternalImportError("Failed to parse Google Sheet. Ensure it is a valid Google Sheet.")
+            
+        self.character_data = TempCharacter(wb.worksheets[0])
         vcell = self.character_data.value("AQ4")
         if "1.3" in vcell:
             self.version = (1, 3)
         elif vcell:
-            self.additional = TempCharacter(doc.worksheet("Additional"))
+            additional_sheet = next((ws for ws in wb.worksheets if ws.title == "Additional"), None)
+            if additional_sheet:
+                self.additional = TempCharacter(additional_sheet)
+            else:
+                self.additional = None
+                
             self.version = (2, 1) if "2.1" in vcell else (2, 0) if "2" in vcell else (1, 0)
+            
             if self.version >= (2, 1):
-                try:
-                    self.inventory = TempCharacter(doc.worksheet("Inventory"))
-                except WorksheetNotFound:
+                inventory_sheet = next((ws for ws in wb.worksheets if ws.title == "Inventory"), None)
+                if inventory_sheet:
+                    self.inventory = TempCharacter(inventory_sheet)
+                else:
                     self.inventory = None
+        
+        return self
 
     # main loading methods
     async def load_character(self, ctx, args):
-        """
-        Downloads and parses the character data, returning a fully-formed Character object.
-        :raises ExternalImportError if something went wrong during the import that we can expect
-        :raises Exception if something weirder happened
-        """
         self.args = args
         owner_id = str(ctx.author.id)
-        try:
-            await self.get_character()
-        except (KeyError, SpreadsheetNotFound, APIError, PermissionError):
-            raise ExternalImportError(
-                "Invalid character sheet. Make sure you've shared it with me at "
-                f"`{GoogleSheet.g_client.http_client.auth.service_account_email}`, or made the sheet viewable to 'Anyone with the link'!"
-            )
-        except Exception:
-            raise
+        
+        await self.get_character()
+        
+        import asyncio
         return await asyncio.get_event_loop().run_in_executor(None, self._load_character, owner_id, args)
 
     def _load_character(self, owner_id: str, args):
