@@ -315,6 +315,65 @@ class SheetView(disnake.ui.View):
 
 class SheetManager(commands.Cog):
     @commands.slash_command(name="sheet", description="View your interactive character sheet.")
+    @commands.slash_command(name="update", description="Update your character from its upstream sheet.")
+    async def slash_update(self, inter: disnake.ApplicationCommandInteraction, character_name: str = None):
+        await inter.response.defer()
+        
+        # Determine which character to update
+        if character_name:
+            char = await Character.from_name(inter, character_name)
+            if not char:
+                return await inter.edit_original_message(content=f"Character '{character_name}' not found.")
+        else:
+            try:
+                char = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
+            except Exception:
+                char = None
+            if not char:
+                return await inter.edit_original_message(content="You don't have an active character, and didn't specify a character name.")
+                
+        # Run the update logic
+        sheet_type = getattr(char, "sheet_type", "google")
+        upstream = getattr(char, "upstream", "")
+        
+        if sheet_type == "google":
+            from cogs5e.sheets.gsheet import GoogleSheet
+            parser = GoogleSheet(upstream)
+        elif sheet_type == "dicecloud":
+            from cogs5e.sheets.dicecloud import DicecloudParser
+            parser = DicecloudParser(upstream)
+        elif sheet_type == "dicecloudv2":
+            from cogs5e.sheets.dicecloudv2 import DicecloudV2Parser
+            parser = DicecloudV2Parser(upstream)
+        else:
+            return await inter.edit_original_message(content=f"Error: Unknown sheet type {sheet_type}.")
+            
+        try:
+            new_char = await parser.load_character(inter, "")
+        except Exception as e:
+            return await inter.edit_original_message(content=f"Error loading character: {e}")
+            
+        new_char.update(char)
+        await new_char.commit(inter)
+        
+        if char.is_active_global():
+            await new_char.set_active(inter)
+            
+        await inter.edit_original_message(content=f"Successfully updated {new_char.name}!")
+
+    @commands.slash_command(name="character", description="Manage your characters")
+    async def slash_character(self, inter: disnake.ApplicationCommandInteraction):
+        pass
+
+    @slash_character.sub_command(name="delete", description="Delete a character permanently from the bot.")
+    async def slash_character_delete(self, inter: disnake.ApplicationCommandInteraction, name: str):
+        char = await Character.from_name(inter, name)
+        if not char:
+            return await inter.response.send_message(f"Character '{name}' not found.", ephemeral=True)
+            
+        await Character.delete(inter, inter.author.id, char.upstream)
+        await inter.response.send_message(f"Successfully deleted character '{char.name}'.")
+
     async def slash_sheet(self, inter: disnake.ApplicationCommandInteraction):
         try:
             char = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
