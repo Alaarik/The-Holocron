@@ -378,7 +378,7 @@ class SheetManager(commands.Cog):
         if not char_data:
             return await inter.response.send_message(f"Character '{name}' not found.", ephemeral=True)
             
-        await Character.delete(inter, inter.author.id, char_data["upstream"])
+        await Character.delete(inter, str(inter.author.id), char_data["upstream"])
         await inter.response.send_message(f"Successfully deleted character '{char_data['name']}'.")
 
     @slash_character_delete.autocomplete("name")
