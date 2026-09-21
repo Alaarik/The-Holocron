@@ -320,9 +320,11 @@ class SheetManager(commands.Cog):
         
         # Determine which character to update
         if character_name:
-            char = await Character.from_name(inter, character_name)
-            if not char:
+            user_chars = await self.bot.mdb.characters.find({"owner": str(inter.author.id)}, ["name", "upstream"]).to_list(None)
+            char_data = next((c for c in user_chars if c["name"].lower() == character_name.lower()), None)
+            if not char_data:
                 return await inter.edit_original_message(content=f"Character '{character_name}' not found.")
+            char = await Character.from_id(inter, inter.author.id, char_data["upstream"])
         else:
             try:
                 char = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
@@ -360,18 +362,29 @@ class SheetManager(commands.Cog):
             
         await inter.edit_original_message(content=f"Successfully updated {new_char.name}!")
 
+    @slash_update.autocomplete("character_name")
+    async def slash_update_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        user_chars = await self.bot.mdb.characters.find({"owner": str(inter.author.id)}, ["name"]).to_list(None)
+        return [c["name"] for c in user_chars if user_input.lower() in c["name"].lower()][:25]
+
     @commands.slash_command(name="character", description="Manage your characters")
     async def slash_character(self, inter: disnake.ApplicationCommandInteraction):
         pass
 
     @slash_character.sub_command(name="delete", description="Delete a character permanently from the bot.")
     async def slash_character_delete(self, inter: disnake.ApplicationCommandInteraction, name: str):
-        char = await Character.from_name(inter, name)
-        if not char:
+        user_chars = await self.bot.mdb.characters.find({"owner": str(inter.author.id)}, ["name", "upstream"]).to_list(None)
+        char_data = next((c for c in user_chars if c["name"].lower() == name.lower()), None)
+        if not char_data:
             return await inter.response.send_message(f"Character '{name}' not found.", ephemeral=True)
             
-        await Character.delete(inter, inter.author.id, char.upstream)
-        await inter.response.send_message(f"Successfully deleted character '{char.name}'.")
+        await Character.delete(inter, inter.author.id, char_data["upstream"])
+        await inter.response.send_message(f"Successfully deleted character '{char_data['name']}'.")
+
+    @slash_character_delete.autocomplete("name")
+    async def slash_character_delete_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        user_chars = await self.bot.mdb.characters.find({"owner": str(inter.author.id)}, ["name"]).to_list(None)
+        return [c["name"] for c in user_chars if user_input.lower() in c["name"].lower()][:25]
 
     @commands.slash_command(name="sheet", description="View your interactive character sheet.")
     async def slash_sheet(self, inter: disnake.ApplicationCommandInteraction):
