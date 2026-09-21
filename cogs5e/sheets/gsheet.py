@@ -489,7 +489,7 @@ class GoogleSheet(SheetLoaderABC):
                 index += 5
             except (TypeError, ValueError):
                 raise MissingAttribute(stat, "C" + str(index), character.worksheet.title)
-        stats = BaseStats(prof_bonus, **stat_dict)
+        stats = BaseStats(prof_bonus=prof_bonus, **stat_dict)
         self._stats = stats
         return stats
 
