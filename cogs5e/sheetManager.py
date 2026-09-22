@@ -43,6 +43,72 @@ DELETE_AFTER_SECONDS = 20
 
 
 
+
+def get_sw5e_summary(act, original_val):
+    name = act.name.lower()
+    if name == "lend aid":
+        return "BA, Channel the Force. +HP = Level + Wis or neutralize disease/poison."
+    if name == "the way of the krayt dragon":
+        return "BA. Stance for 1 min. Add Wis/Cha mod to damage with kinetic/energy/ion weapons."
+    if name == "falling avalanche":
+        return "No action, Channel the Force. Speed halved, +1d8 kinetic damage on hit and target falls Prone."
+    if name == "force-empowered strikes":
+        return "No action, on hit. Expend Force Points (max 1) for +1d8 damage."
+    if name == "reliable vigor":
+        return "No action. If Str check/save < Guardian level, treat as Guardian level."
+    if name == "aura of protection":
+        return "Reaction. Take damage instead of ally within 5 ft."
+    if name == "aura of presence":
+        return "Passive. Ally within 5 ft adds your Wis/Cha mod to a saving throw."
+    if name == "djem so form":
+        return "BA to adopt. Before end of next turn, add 1/2 Wis/Cha to one Str check/attack."
+    if name == "shii-cho form":
+        return "BA to adopt. If Attack action taken, can TWF. 1st hit on Large/smaller forces Str save or pushed 5 ft."
+    if name == "soresu form":
+        return "BA to adopt. 1st time you take kinetic/energy/ion damage before end of next turn, halve it."
+    if name == "makashi form":
+        return "BA to adopt. Until start of next turn, gain special reaction: when missed by melee, make opportunity attack."
+    if name == "alert":
+        return "Passive. +5 Initiative. Can't be surprised. Hidden attackers don't gain advantage."
+    if name == "defense mastery":
+        return "Passive/Reaction. +1 AC in armor. Reaction to shove 10ft when attacked in melee. Armor damage reduction."
+    if name == "sentinel style":
+        return "Passive. Opportunity attacks don't require reaction if you have one. +1 AC with shields."
+    if name == "formfighting dabbler":
+        return "Passive. Learn 2 forms."
+    if name == "fighting master":
+        return "Passive. Learn a Fighting Mastery."
+    if name == "force purity":
+        return "Passive. Immune to poison and disease."
+    
+    # Check if we should truncate a long snippet
+    if len(original_val) > 200:
+        return original_val[:197] + "..."
+    return original_val
+
+def is_activated(act):
+    name = act.name.lower()
+    # Explicitly activated forms/abilities
+    if name in {
+        "falling avalanche", "force-empowered strikes", "reliable vigor",
+        "aura of protection", "lend aid", "the way of the krayt dragon",
+        "djem so form", "shii-cho form", "makashi form", "soresu form"
+    }:
+        return True
+    
+    # Explicitly passive traits/feats
+    if name in {
+        "alert", "fighting master", "formfighting dabbler", "defense mastery",
+        "sentinel style", "force purity", "aura of presence"
+    }:
+        return False
+        
+    # Check activation type (1=Action, 3=Bonus, 4=Reaction, 9=Legendary, 10=Mythic, 11=Lair)
+    if act.activation_type and act.activation_type.value in (1, 3, 4, 9, 10, 11):
+        return True
+        
+    return False
+
 class SheetView(disnake.ui.View):
     def __init__(self, character, author_id):
         super().__init__(timeout=600)
@@ -77,7 +143,7 @@ class SheetView(disnake.ui.View):
         weapon_names.add("unarmed strike")
         
         weapons = []
-        features = []
+        actions_list = []
         seen_names = set()
         
         for act in attacks:
@@ -89,19 +155,18 @@ class SheetView(disnake.ui.View):
             if act.name not in seen_names:
                 if getattr(act, "is_weapon", False) or act.name.lower() in weapon_names:
                     weapons.append(act)
-                else:
-                    features.append(act)
+                elif is_activated(act):
+                    actions_list.append(act)
                 seen_names.add(act.name)
         
         weapons.sort(key=lambda a: a.name)
-        features.sort(key=lambda a: a.name)
+        actions_list.sort(key=lambda a: a.name)
         
-        # Build the sections
         sections = []
         if weapons:
             sections.append(("Weapons", weapons))
-        if features:
-            sections.append(("Features & Actions", features))
+        if actions_list:
+            sections.append(("Actions", actions_list))
             
         if not sections:
             embeds = [disnake.Embed(title=f"{self.character.name} - Actions", description="No actions found.", color=0x2ecc71)]
@@ -120,7 +185,70 @@ class SheetView(disnake.ui.View):
                     current_desc += addition
                     
                 for act in act_list:
-                    val = act.build_str(self.character)
+                    val = get_sw5e_summary(act, act.build_str(self.character))
+                    if val.startswith(f"**{act.name}**"):
+                        addition = f"{val}\n\n"
+                    else:
+                        addition = f"**{act.name}**: {val}\n\n"
+                    
+                    if len(current_desc) + len(addition) > 4000:
+                        current_embed.description = current_desc.strip()
+                        embeds.append(current_embed)
+                        current_embed = disnake.Embed(color=0x2ecc71)
+                        current_desc = addition
+                    else:
+                        current_desc += addition
+            if current_desc:
+                current_embed.description = current_desc.strip()
+                embeds.append(current_embed)
+            embeds = embeds[:10]
+            
+        self._update_buttons(button)
+        await inter.response.edit_message(embeds=embeds, view=self)
+
+    @disnake.ui.button(label="Features", style=disnake.ButtonStyle.secondary)
+    async def btn_features(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        class_actions = list(self.character.actions)
+        
+        from gamedata.compendium import compendium
+        weapon_names = {w.name.lower() for w in compendium.weapons}
+        weapon_names.add("unarmed strike")
+        
+        features_list = []
+        seen_names = set()
+        
+        for act in class_actions:
+            if act.name not in seen_names:
+                if getattr(act, "is_weapon", False) or act.name.lower() in weapon_names:
+                    pass
+                elif not is_activated(act):
+                    features_list.append(act)
+                seen_names.add(act.name)
+        
+        features_list.sort(key=lambda a: a.name)
+        
+        sections = []
+        if features_list:
+            sections.append(("Feats & Traits", features_list))
+            
+        if not sections:
+            embeds = [disnake.Embed(title=f"{self.character.name} - Features", description="No features found.", color=0x2ecc71)]
+        else:
+            embeds = []
+            current_embed = disnake.Embed(title=f"{self.character.name} - Features", color=0x2ecc71)
+            current_desc = ""
+            for sec_name, act_list in sections:
+                addition = f"### {sec_name}\n"
+                if len(current_desc) + len(addition) > 4000:
+                    current_embed.description = current_desc.strip()
+                    embeds.append(current_embed)
+                    current_embed = disnake.Embed(color=0x2ecc71)
+                    current_desc = addition
+                else:
+                    current_desc += addition
+                    
+                for act in act_list:
+                    val = get_sw5e_summary(act, act.build_str(self.character))
                     if val.startswith(f"**{act.name}**"):
                         addition = f"{val}\n\n"
                     else:
