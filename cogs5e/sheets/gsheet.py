@@ -290,7 +290,8 @@ class GoogleSheet(SheetLoaderABC):
         async with aiohttp.ClientSession() as session:
             async with session.get(export_url) as resp:
                 if resp.status != 200:
-                    raise ExternalImportError("Failed to download Google Sheet. Ensure it is shared to 'Anyone with the link can view'.")
+                    body = await resp.text()
+                    raise ExternalImportError(f"Failed to download Google Sheet (HTTP {resp.status}). Ensure it is shared to 'Anyone with the link can view'.")
                 data = await resp.read()
                 
         try:
