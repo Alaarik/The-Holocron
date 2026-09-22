@@ -1499,5 +1499,57 @@ async def send_ddb_ctas(ctx, character):
     await ctx.bot.rdb.setex(f"cog.sheetmanager.cta.seen.{ctx.author.id}", str(time.time()), 60 * 60 * 24 * 7)
 
 
+    @commands.slash_command(name="rest", description="Take a short or long rest.")
+    async def slash_rest(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        rest_type: str = commands.Param(name="type", description="The type of rest to take", choices=["short", "long"])
+    ):
+        try:
+            character = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
+        except Exception:
+            character = None
+            
+        if not character:
+            return await inter.response.send_message("You do not have an active character.", ephemeral=True)
+            
+        await inter.response.defer()
+        
+        embed = disnake.Embed(color=character.get_color())
+        
+        if rest_type == "long":
+            reset_list = character.long_rest()
+            embed.title = f"{character.name} takes a Long Rest"
+            
+            # SW5e: Tech Points and Force Points restore on long rest (often tracked as counters)
+            # HP is restored.
+            desc = "HP fully restored.\n"
+            desc += "Hit Dice recovered (up to half max).\n"
+            desc += "Spell slots and points restored.\n\n"
+            
+            if reset_list:
+                desc += "**Counters Reset:**\n"
+                for counter, result in reset_list:
+                    desc += f"- **{counter.name}**: {result}\n"
+                    
+            embed.description = desc
+        else:
+            reset_list = character.short_rest()
+            embed.title = f"{character.name} takes a Short Rest"
+            
+            desc = "Spend Hit Dice to recover HP.\n\n"
+            
+            if reset_list:
+                desc += "**Counters Reset:**\n"
+                for counter, result in reset_list:
+                    desc += f"- **{counter.name}**: {result}\n"
+            else:
+                desc += "No counters reset."
+                
+            embed.description = desc
+            
+        await character.commit(inter)
+        await inter.followup.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(SheetManager(bot))
