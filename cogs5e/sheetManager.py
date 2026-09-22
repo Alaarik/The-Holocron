@@ -360,7 +360,7 @@ class SheetManager(commands.Cog):
             char_data = next((c for c in user_chars if c["name"].lower() == character_name.lower()), None)
             if not char_data:
                 return await inter.edit_original_message(content=f"Character '{character_name}' not found.")
-            char = await Character.from_id(inter, inter.author.id, char_data["upstream"])
+            char = await Character.from_bot_and_ids(self.bot, inter.author.id, char_data["upstream"])
         else:
             try:
                 char = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
