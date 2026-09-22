@@ -73,19 +73,41 @@ def get_actions_for_names(names):
     for name in names:
         g_actions = get_actions_for_name(name)
         
-        # SW5e fuzzy prefix strip (e.g. "Feat: Alert" -> "Alert")
+        # SW5e fuzzy prefix strip (e.g. "Feat: Alert" -> "Alert", "Guardian Level 2: X" -> "X")
         stripped = name
         if not g_actions and ":" in name:
             stripped = name.split(":", 1)[-1].strip()
             g_actions = get_actions_for_name(stripped)
+        
+        # SW5e: try common suffixes (e.g. "Form: Djem So" -> "Djem So Form")
+        if not g_actions:
+            prefix = name.split(":", 1)[0].strip().lower() if ":" in name else ""
+            suffix_map = {"form": "Form", "fighting style": "Style", "fighting mastery": "Mastery"}
+            for key, suffix in suffix_map.items():
+                if prefix == key:
+                    g_actions = get_actions_for_name(f"{stripped} {suffix}")
+                    if g_actions:
+                        break
             
-        # SW5e bypass: sometimes users drop "The " (e.g. "Way of the Krayt Dragon")
+        # SW5e: sometimes users drop "The " (e.g. "Way of the Krayt Dragon")
         if not g_actions and not stripped.lower().startswith("the "):
             g_actions = get_actions_for_name("The " + stripped)
             
-        # SW5e bypass: sometimes users forget hyphens (e.g. "Force Empowered Strikes")
+        # SW5e: sometimes users forget hyphens (e.g. "Force Empowered Strikes")
         if not g_actions and " " in stripped:
             g_actions = get_actions_for_name(stripped.replace(" ", "-"))
+        
+        # SW5e: common misspellings (e.g. "Formfighter" -> "Formfighting")
+        if not g_actions:
+            variants = [
+                stripped.replace("fighter", "fighting"),
+                stripped.replace("fighting", "fighter"),
+            ]
+            for v in variants:
+                if v != stripped:
+                    g_actions = get_actions_for_name(v)
+                    if g_actions:
+                        break
             
         # in some cases, a very generic feature name (e.g. "Channel Divinity") will grant far more actions than we want
         # code snippet to determine this threshold:
@@ -105,6 +127,7 @@ def get_actions_for_names(names):
                     id=g_action.id,
                     type_id=g_action.type_id,
                     activation_type=g_action.activation_type,
+                    snippet=getattr(g_action, 'snippet', None),
                 )
             )
 

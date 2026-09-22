@@ -813,6 +813,18 @@ class GoogleSheet(SheetLoaderABC):
             if stripped.lower() in found_names: continue
             if ("the " + stripped.lower()) in found_names: continue
             if stripped.lower().replace(" ", "-") in found_names: continue
+            # Check suffix patterns (Form: X -> X Form, etc.)
+            prefix = f.split(":", 1)[0].strip().lower() if ":" in f else ""
+            suffix_map = {"form": "Form", "fighting style": "Style", "fighting mastery": "Mastery"}
+            suffix_matched = False
+            for key, suffix in suffix_map.items():
+                if prefix == key and f"{stripped} {suffix}".lower() in found_names:
+                    suffix_matched = True
+                    break
+            if suffix_matched: continue
+            # Check spelling variants
+            if stripped.replace("fighter", "fighting").lower() in found_names: continue
+            if stripped.replace("fighting", "fighter").lower() in found_names: continue
             actions.append(Action(name=f, uid=None, id=0, type_id=0, activation_type=None))
             
         return Actions(actions)

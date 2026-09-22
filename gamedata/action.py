@@ -13,6 +13,7 @@ class Action(AutomatibleMixin):
         source_feature_id,
         source_feature_type_id,
         list_display_override=None,
+        snippet=None,
         **kwargs,
     ):
         """
@@ -24,6 +25,7 @@ class Action(AutomatibleMixin):
         :type source_feature_type_id: int
         :type activation_type: ActivationType
         :type list_display_override: str or None
+        :type snippet: str or None
         """
         super().__init__(**kwargs)
         self.name = name
@@ -34,6 +36,7 @@ class Action(AutomatibleMixin):
         self.source_feature_id = source_feature_id
         self.source_feature_type_id = source_feature_type_id
         self.list_display_override = list_display_override
+        self.snippet = snippet
 
     @classmethod
     def from_data(cls, d):
@@ -46,6 +49,7 @@ class Action(AutomatibleMixin):
             source_feature_id=d["source_feature_id"],
             source_feature_type_id=d["source_feature_type_id"],
             list_display_override=d.get("list_display_override"),
+            snippet=d.get("snippet"),
         ).initialize_automation(d)
 
     @property
