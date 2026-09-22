@@ -253,7 +253,6 @@ async def cast_spell(
 
         # #1000: is this spell prepared (soft check)?
         if not is_prepared:
-            import disnake
             if isinstance(ctx, disnake.Interaction):
                 # Slash commands shouldn't hang waiting for chat responses
                 skip_prep_conf = True
