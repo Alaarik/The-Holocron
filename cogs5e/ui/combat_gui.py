@@ -24,9 +24,9 @@ class CombatView(disnake.ui.View):
                 "Force-Empowered Strikes", 
                 "Ranger's Quarry", 
                 "Kinetic Combat", 
-                "Superiority Die", 
-                "Potent Aptitude",
-                "The Way of the Krayt Dragon"
+                "Superiority Die",
+                "The Way of the Krayt Dragon",
+                "Sharp Instincts"
             ]:
                 if feature.name not in self.valid_modifiers:
                     self.valid_modifiers.append(feature.name)
@@ -60,6 +60,21 @@ class CombatView(disnake.ui.View):
                     args_str += f"-d \"{math.ceil(operative_levels/2)}d6\" "
                 elif mod_name == "Force-Empowered Strikes":
                     args_str += f"-d \"1d8\" " 
+                elif mod_name == "Superiority Die":
+                    f_lvl = 0
+                    s_lvl = 0
+                    for c in self.character.levels:
+                        if c[0] == "Fighter": f_lvl = c[1]
+                        if c[0] == "Scholar": s_lvl = c[1]
+                    lvl = max(f_lvl, s_lvl)
+                    die = 4 + 2 * ((lvl >= 5) + (lvl >= 9) + (lvl >= 13) + (lvl >= 17))
+                    args_str += f"-d \"1d{die}\" "
+                elif mod_name == "Sharp Instincts":
+                    scholar_levels = 0
+                    for c in self.character.levels:
+                        if c[0] == "Scholar": scholar_levels = c[1]
+                    die = 8 + 2 * ((scholar_levels >= 13) + (scholar_levels >= 17))
+                    args_str += f"-d \"1d{die}\" "
                 elif mod_name == "The Way of the Krayt Dragon":
                     # Krayt Dragon adds Strength Mod to damage
                     str_mod = self.character.skills.strength.modifier

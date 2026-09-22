@@ -3421,7 +3421,27 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "_**Engineer:** 1st level_\r\nYour technological experience lends you an uncommon insight that you can use to bolster your allies. To do so, you use a bonus action on your turn to choose one creature oth...",
-        "automation": []
+        "automation": [
+            {
+                "type": "target",
+                "target": "each",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Potent Aptitude",
+                        "duration": 100,
+                        "effects": "",
+                        "desc": "Roll 1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17))) and add to one ability check, attack roll, or saving throw."
+                    }
+                ]
+            },
+            {
+                "type": "counter",
+                "counter": "Potent Aptitude",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            }
+        ]
     },
     {
         "name": "Techcasting",
@@ -4664,7 +4684,21 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "_**Scholar:** 1st level_\r\nYou are able to analyze a creature, develop a plan on how to best overcome any potential obstacle, and execute that plan with ruthless efficiency. As a bonus action on your t...",
-        "automation": []
+        "automation": [
+            {
+                "type": "target",
+                "target": "each",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Critically Analyzed",
+                        "duration": 10,
+                        "effects": "",
+                        "desc": "The Scholar can use their Intelligence modifier for finesse and blaster weapon attack and damage rolls against this target."
+                    }
+                ]
+            }
+        ]
     },
     {
         "name": "Discovery",
@@ -46358,7 +46392,27 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "_**Engineer:** 1st level_\r\nYour technological experience lends you an uncommon insight that you can use to bolster your allies. To do so, you use a bonus action on your turn to choose one creature oth...",
-        "automation": []
+        "automation": [
+            {
+                "type": "target",
+                "target": "each",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Potent Aptitude",
+                        "duration": 100,
+                        "effects": "",
+                        "desc": "Roll 1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17))) and add to one ability check, attack roll, or saving throw."
+                    }
+                ]
+            },
+            {
+                "type": "counter",
+                "counter": "Potent Aptitude",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            }
+        ]
     },
     {
         "name": "Infuse Item",
@@ -47818,7 +47872,21 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "_**Scholar:** 1st level_\r\nYou are able to analyze a creature, develop a plan on how to best overcome any potential obstacle, and execute that plan with ruthless efficiency. As a bonus action on your t...",
-        "automation": []
+        "automation": [
+            {
+                "type": "target",
+                "target": "each",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Critically Analyzed",
+                        "duration": 10,
+                        "effects": "",
+                        "desc": "The Scholar can use their Intelligence modifier for finesse and blaster weapon attack and damage rolls against this target."
+                    }
+                ]
+            }
+        ]
     },
     {
         "name": "Discovery",
