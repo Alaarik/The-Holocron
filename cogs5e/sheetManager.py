@@ -73,7 +73,7 @@ def get_sw5e_summary(act, original_val):
     if name == "defense mastery":
         return "Passive/Reaction. Armor damage reduced by prof bonus (min 1). Reaction to shove 10ft when attacked in melee."
     if name == "sentinel style":
-        return "Passive. Opportunity attacks don't require reaction if you have one. +1 AC with shields."
+        return "Passive. Creatures provoke OA when moving into or within reach. OA hits inflict 4 slowed levels."
     if name == "formfighting dabbler":
         return "Passive. Learn 2 forms."
     if name == "fighting master":

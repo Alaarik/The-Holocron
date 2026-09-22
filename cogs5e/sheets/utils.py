@@ -95,7 +95,15 @@ def get_actions_for_names(names):
             
         # SW5e: sometimes users forget hyphens (e.g. "Force Empowered Strikes")
         if not g_actions and " " in stripped:
-            g_actions = get_actions_for_name(stripped.replace(" ", "-"))
+            # Try replacing just one space at a time with a hyphen
+            parts = stripped.split(" ")
+            for i in range(len(parts) - 1):
+                candidate = " ".join(parts[:i+1]) + "-" + " ".join(parts[i+1:])
+                g_actions = get_actions_for_name(candidate)
+                if g_actions: break
+            # Try replacing all just in case
+            if not g_actions:
+                g_actions = get_actions_for_name(stripped.replace(" ", "-"))
         
         # SW5e: common misspellings (e.g. "Formfighter" -> "Formfighting")
         if not g_actions:

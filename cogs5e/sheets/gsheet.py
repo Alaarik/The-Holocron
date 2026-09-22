@@ -812,6 +812,15 @@ class GoogleSheet(SheetLoaderABC):
             stripped = f.split(":", 1)[-1].strip() if ":" in f else f
             if stripped.lower() in found_names: continue
             if ("the " + stripped.lower()) in found_names: continue
+            
+            hyphen_matched = False
+            parts = stripped.split(" ")
+            for i in range(len(parts) - 1):
+                candidate = " ".join(parts[:i+1]) + "-" + " ".join(parts[i+1:])
+                if candidate.lower() in found_names:
+                    hyphen_matched = True
+                    break
+            if hyphen_matched: continue
             if stripped.lower().replace(" ", "-") in found_names: continue
             # Check suffix patterns (Form: X -> X Form, etc.)
             prefix = f.split(":", 1)[0].strip().lower() if ":" in f else ""
