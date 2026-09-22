@@ -46,45 +46,47 @@ DELETE_AFTER_SECONDS = 20
 
 def get_sw5e_summary(act, original_val):
     name = act.name.lower()
-    if name == "lend aid":
-        return "BA, Channel the Force. +HP = Level + Wis or neutralize disease/poison."
-    if name == "the way of the krayt dragon":
-        return "BA. Stance for 1 min. 1st Str melee hit each turn deals +Str mod damage, OR apply that +Str mod damage to a 2nd target within 5ft instead."
-    if name == "falling avalanche":
-        return "No action, Channel the Force. Speed halved, gain advantage on next Str check/attack before end of next turn."
-    if name in ("force-empowered strikes", "force empowered strikes"):
-        return "No action, on hit. Expend Force Points (max 1) for +1d8 damage."
-    if name == "reliable vigor":
-        return "No action. If Str check/save < Guardian level, treat as Guardian level."
-    if name == "aura of protection":
-        return "Reaction. Take damage instead of ally within 5 ft."
-    if name == "aura of presence":
-        return "Passive. Ally within 5 ft adds your Wis/Cha mod to a saving throw."
-    if name == "djem so form":
-        return "BA to adopt. Before end of next turn, add 1/2 Wis/Cha to one Str check/attack."
-    if name == "shii-cho form":
-        return "BA to adopt. If Attack action taken, can TWF. 1st hit on Large/smaller forces Str save or pushed 5 ft."
-    if name == "soresu form":
-        return "BA to adopt. 1st time you take kinetic/energy/ion damage before end of next turn, halve it."
-    if name == "makashi form":
-        return "BA to adopt. Until start of next turn, gain special reaction: when missed by melee, make opportunity attack."
-    if name == "alert":
-        return "Passive. +5 Initiative. Can't be surprised. Hidden attackers don't gain advantage."
-    if name == "defense mastery":
-        return "Passive/Reaction. Armor damage reduced by prof bonus (min 1). Reaction to shove 10ft when attacked in melee."
-    if name == "sentinel style":
-        return "Passive. Creatures provoke OA when moving into or within reach. OA hits inflict 4 slowed levels."
-    if name == "formfighting dabbler":
-        return "Passive. Learn 2 forms."
-    if name == "fighting master":
-        return "Passive. Learn a Fighting Mastery."
-    if name == "force purity":
-        return "Passive. Immune to poison and disease."
     
-    # Check if we should truncate a long snippet
-    if len(original_val) > 200:
-        return original_val[:197] + "..."
-    return original_val
+    # SW5e Summaries Hardcoded Map
+    summaries = {
+        "lend aid": "BA, Channel the Force. +HP = Level + Wis or neutralize disease/poison.",
+        "the way of the krayt dragon": "BA. Stance for 1 min. 1st Str melee hit each turn deals +Str mod damage, OR apply that +Str mod damage to a 2nd target within 5ft instead.",
+        "falling avalanche": "No action, Channel the Force. Speed halved, gain advantage on next Str check/attack before end of next turn.",
+        "force-empowered strikes": "No action, on hit. Expend Force Points (max 1) for +1d8 damage.",
+        "force empowered strikes": "No action, on hit. Expend Force Points (max 1) for +1d8 damage.",
+        "reliable vigor": "No action. If Str check/save < Guardian level, treat as Guardian level.",
+        "aura of protection": "Reaction. Take damage instead of ally within 5 ft.",
+        "aura of presence": "Passive. Ally within 5 ft adds your Wis/Cha mod to a saving throw.",
+        "djem so form": "BA to adopt. Before end of next turn, add 1/2 Wis/Cha to one Str check/attack.",
+        "shii-cho form": "BA to adopt. If Attack action taken, can TWF. 1st hit on Large/smaller forces Str save or pushed 5 ft.",
+        "soresu form": "BA to adopt. 1st time you take kinetic/energy/ion damage before end of next turn, halve it.",
+        "makashi form": "BA to adopt. Until start of next turn, gain special reaction: when missed by melee, make opportunity attack.",
+        "alert": "Passive. +5 Initiative. Can't be surprised. Hidden attackers don't gain advantage.",
+        "defense mastery": "Passive/Reaction. Armor damage reduced by prof bonus (min 1). Reaction to shove 10ft when attacked in melee.",
+        "sentinel style": "Passive. Creatures provoke OA when moving into or within reach. OA hits inflict 4 slowed levels.",
+        "formfighting dabbler": "Passive. Learn 2 forms.",
+        "fighting master": "Passive. Learn a Fighting Mastery.",
+        "fighting stylist": "Passive. Learn a Fighting Style.",
+        "force purity": "Passive. Immune to poison and disease."
+    }
+    
+    if name in summaries:
+        return summaries[name]
+        
+    import re
+    # Clean standard SW5e ASI language
+    cleaned = re.sub(r'\n?\s*-\s*Increase[^\n]*(?:maximum of 20\.|score by 1)[^\n]*', '', original_val, flags=re.IGNORECASE)
+    # Clean standard SW5e fluff language
+    cleaned = re.sub(r'\s*You (?:adopt a particular.*?|gain the following benefits:)\s*', ' ', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'\s*You can take this feat multiple times\.', '', cleaned, flags=re.IGNORECASE)
+    cleaned = cleaned.strip()
+    if cleaned.startswith("- "):
+        cleaned = cleaned[2:]
+        
+    # Truncate if still too long
+    if len(cleaned) > 200:
+        return cleaned[:197] + "..."
+    return cleaned
 
 def is_activated(act):
     name = act.name.lower()
