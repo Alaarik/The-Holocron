@@ -83,6 +83,10 @@ def get_actions_for_names(names):
         if not g_actions and not stripped.lower().startswith("the "):
             g_actions = get_actions_for_name("The " + stripped)
             
+        # SW5e bypass: sometimes users forget hyphens (e.g. "Force Empowered Strikes")
+        if not g_actions and " " in stripped:
+            g_actions = get_actions_for_name(stripped.replace(" ", "-"))
+            
         # in some cases, a very generic feature name (e.g. "Channel Divinity") will grant far more actions than we want
         # code snippet to determine this threshold:
         # bleps = [(name, len(actions), actions) for name, actions in discoverer.actions_granted_by_name.items()]
