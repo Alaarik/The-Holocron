@@ -2073,7 +2073,7 @@
                     {
                         "type": "ieffect",
                         "name": "Krayt Dragon Stance",
-                        "duration": 10,
+                        "duration": 1, "effects": ""0,
                         "desc": "Deal extra damage equal to Strength modifier on first hit each turn."
                     }
                 ]
@@ -33480,7 +33480,7 @@
                     {
                         "type": "ieffect",
                         "name": "Krayt Dragon Stance",
-                        "duration": 10,
+                        "duration": 1, "effects": ""0,
                         "desc": "Deal extra damage equal to Strength modifier on first hit each turn."
                     }
                 ]
@@ -33536,7 +33536,7 @@
                     {
                         "type": "ieffect",
                         "name": "Prone",
-                        "duration": 1
+                        "duration": 1, "effects": ""
                     }
                 ]
             }
