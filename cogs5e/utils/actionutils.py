@@ -236,7 +236,8 @@ async def cast_spell(
             embed = embeds.EmbedWithAuthor(ctx)
             embed.title = "Cannot cast power!"
             if counter is None:
-                err = f"You don't have a '{pool_name}' counter! Use `{getattr(ctx, "prefix", "/")}cc create \"{pool_name}\" -max <max>` to create one, or pass `-i` to ignore restrictions."
+                _pfx = getattr(ctx, 'prefix', '/')
+                err = f"You don't have a '{pool_name}' counter! Use `{_pfx}cc create \"{pool_name}\" -max <max>` to create one, or pass `-i` to ignore restrictions."
             else:
                 err = f"You don't have enough {pool_name}! ({counter.value}/{counter.max} remaining, needs {point_cost}). Use `-l <level>` to cast at a different level, or `-i` to ignore point costs!"
             embed.description = err
@@ -245,7 +246,8 @@ async def cast_spell(
         if spell.name not in caster.spellbook:
             embed = embeds.EmbedWithAuthor(ctx)
             embed.title = "Cannot cast power!"
-            err = f"You don't know this power! Use `{getattr(ctx, "prefix", "/")}powerbook add \"{spell.name}\"` to add it to your powerbook, or pass `-i` to ignore restrictions."
+            _pfx = getattr(ctx, 'prefix', '/')
+            err = f"You don't know this power! Use `{_pfx}powerbook add \"{spell.name}\"` to add it to your powerbook, or pass `-i` to ignore restrictions."
             embed.description = err
             return CastResult(embed=embed, success=False, automation_result=None)
 
@@ -262,12 +264,13 @@ async def cast_spell(
                     delete_msgs=True,
                 )
             if not skip_prep_conf:
+                _pfx = getattr(ctx, 'prefix', '/')
                 embed = embeds.EmbedWithAuthor(
                     ctx,
                     title=f"Cannot cast power!",
                     description=(
                         f"{spell.name} is not prepared! Prepare it on your character sheet and use "
-                        f"`{getattr(ctx, "prefix", "/")}update` to mark it as prepared, or use `-i` to ignore restrictions."
+                        f"`{_pfx}update` to mark it as prepared, or use `-i` to ignore restrictions."
                     ),
                 )
                 return CastResult(embed=embed, success=False, automation_result=None)
