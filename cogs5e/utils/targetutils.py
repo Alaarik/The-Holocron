@@ -19,7 +19,11 @@ async def maybe_combat_caster(ctx, caster, combat=None):
     """
     if combat is None:
         with suppress(CombatNotFound):
-            combat = await ctx.get_combat()
+            if hasattr(ctx, "get_combat"):
+                combat = await ctx.get_combat()
+            else:
+                from cogs5e.initiative import Combat
+                combat = await Combat.from_ctx(ctx)
 
     if combat is not None and isinstance(caster, Character):
         combatant = next(
@@ -35,7 +39,10 @@ async def maybe_combat_caster(ctx, caster, combat=None):
             await combatant.update_character_ref(ctx, inst=caster)
             caster = combatant
 
-    ctx.nlp_caster = caster  # NLP: save a reference to the caster
+    try:
+        ctx.nlp_caster = caster  # NLP: save a reference to the caster
+    except AttributeError:
+        pass
     return caster
 
 
@@ -49,7 +56,13 @@ async def maybe_combat(ctx, caster, args, allow_groups=True):
     targets = []
 
     try:
-        combat = await ctx.get_combat()
+        if hasattr(ctx, "get_combat"):
+            combat = await ctx.get_combat()
+        else:
+            from cogs5e.initiative import Combat
+            combat = await Combat.from_ctx(ctx)
+            if combat is None:
+                raise CombatNotFound()
     except CombatNotFound:
         for i, target in enumerate(target_args):
             if "|" in target:
@@ -97,5 +110,8 @@ async def definitely_combat(ctx: "AvraeContext", combat: "Combat", args: ParsedA
                 args.add_context(target, contextargs)
             targets.append(target)
 
-    ctx.nlp_targets = targets  # NLP: save a reference to the targets list
+    try:
+        ctx.nlp_targets = targets  # NLP: save a reference to the targets list
+    except AttributeError:
+        pass
     return targets

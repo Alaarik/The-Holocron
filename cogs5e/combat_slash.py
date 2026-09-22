@@ -88,7 +88,7 @@ class CombatSlashCog(commands.Cog):
             return await inter.followup.send("You do not have an active character.")
             
         from gamedata.compendium import compendium
-        from gamedata.lookups import search
+        from utils.functions import search
         
         result, strict = search(compendium.spells, power, lambda s: s.name, strict=True)
         if not result:
@@ -110,9 +110,8 @@ class CombatSlashCog(commands.Cog):
         args = argparse(args_str)
         embed = disnake.Embed()
         
-        caster, targets, combat = await maybe_combat(inter, character, args)
-            
         try:
+            caster, targets, combat = await maybe_combat(inter, character, args)
             res = await cast_spell(
                 spell=spell,
                 ctx=inter,
