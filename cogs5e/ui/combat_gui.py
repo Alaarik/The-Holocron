@@ -61,6 +61,10 @@ class CombatView(disnake.ui.View):
                     args_str += f"-d \"{math.ceil(operative_levels/2)}d6\" "
                 elif mod_name == "Force-Empowered Strikes":
                     args_str += f"-d \"1d8\" " 
+                    counter = self.character.get_consumable("Force Points")
+                    if counter and counter.value > 0:
+                        counter.set(counter.value - 1)
+                        await self.character.commit(self.inter)
                 elif mod_name == "Superiority Die":
                     f_lvl = 0
                     s_lvl = 0
@@ -85,6 +89,10 @@ class CombatView(disnake.ui.View):
                         if c[0] == "Sentinel": lvl = c[1]
                     die = 4 + 2 * ((lvl >= 5) + (lvl >= 9) + (lvl >= 13) + (lvl >= 17))
                     args_str += f"-d \"1d{die}\" "
+                    counter = self.character.get_consumable("Force Points")
+                    if counter and counter.value > 0:
+                        counter.set(counter.value - 1)
+                        await self.character.commit(self.inter)
                 elif mod_name == "Sharp Instincts":
                     scholar_levels = 0
                     for c in self.character.levels:
