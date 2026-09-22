@@ -20,7 +20,7 @@ class CombatSlashCog(commands.Cog):
             character = None
             
         if not character:
-            return await inter.response.send_message("You do not have an active character.", ephemeral=True)
+            return await inter.followup.send("You do not have an active character.", ephemeral=True)
             
         atk = character.get_attack(action)
         if not atk:
@@ -84,14 +84,14 @@ class CombatSlashCog(commands.Cog):
             character = None
             
         if not character:
-            return await inter.response.send_message("You do not have an active character.", ephemeral=True)
+            return await inter.followup.send("You do not have an active character.", ephemeral=True)
             
         from gamedata.compendium import compendium
         from gamedata.lookups import search
         
         result, strict = search(compendium.spells, power, lambda s: s.name, strict=True)
         if not result:
-            return await inter.response.send_message(f"Power '{power}' not found in the compendium.", ephemeral=True)
+            return await inter.followup.send(f"Power '{power}' not found in the compendium.", ephemeral=True)
             
         spell = result
         
@@ -108,7 +108,6 @@ class CombatSlashCog(commands.Cog):
         args = argparse(args_str)
         embed = disnake.Embed()
         
-        await inter.response.defer()
         
         caster, targets, combat = await maybe_combat(inter, character, args)
             
