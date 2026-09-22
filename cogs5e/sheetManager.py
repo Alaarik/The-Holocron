@@ -49,10 +49,10 @@ def get_sw5e_summary(act, original_val):
     if name == "lend aid":
         return "BA, Channel the Force. +HP = Level + Wis or neutralize disease/poison."
     if name == "the way of the krayt dragon":
-        return "BA. Stance for 1 min. Add Wis/Cha mod to damage with kinetic/energy/ion weapons."
+        return "BA. Stance for 1 min. 1st Str melee hit each turn deals +Str mod damage, OR apply that +Str mod damage to a 2nd target within 5ft instead."
     if name == "falling avalanche":
-        return "No action, Channel the Force. Speed halved, +1d8 kinetic damage on hit and target falls Prone."
-    if name == "force-empowered strikes":
+        return "No action, Channel the Force. Speed halved, gain advantage on next Str check/attack before end of next turn."
+    if name in ("force-empowered strikes", "force empowered strikes"):
         return "No action, on hit. Expend Force Points (max 1) for +1d8 damage."
     if name == "reliable vigor":
         return "No action. If Str check/save < Guardian level, treat as Guardian level."
@@ -71,7 +71,7 @@ def get_sw5e_summary(act, original_val):
     if name == "alert":
         return "Passive. +5 Initiative. Can't be surprised. Hidden attackers don't gain advantage."
     if name == "defense mastery":
-        return "Passive/Reaction. +1 AC in armor. Reaction to shove 10ft when attacked in melee. Armor damage reduction."
+        return "Passive/Reaction. Armor damage reduced by prof bonus (min 1). Reaction to shove 10ft when attacked in melee."
     if name == "sentinel style":
         return "Passive. Opportunity attacks don't require reaction if you have one. +1 AC with shields."
     if name == "formfighting dabbler":
