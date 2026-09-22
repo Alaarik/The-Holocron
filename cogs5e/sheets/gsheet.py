@@ -387,17 +387,7 @@ class GoogleSheet(SheetLoaderABC):
                     "reset": "short"
                 })
                 
-            if cname == "Guardian" and clevel >= 7:
-                uses = 3
-                if clevel >= 9: uses = 4
-                if clevel >= 13: uses = 5
-                if clevel >= 17: uses = 6
-                consumables.append({
-                    "name": "Reliable Vigor",
-                    "maxv": uses,
-                    "value": uses,
-                    "reset": "long"
-                })
+
 
         if max_force > 0:
             force_mod = max(stats.get_mod("wis"), stats.get_mod("cha"))
@@ -436,6 +426,25 @@ class GoogleSheet(SheetLoaderABC):
         race = self.get_race()
         background = self.get_background()
         actions = self.get_actions()
+        
+        # Determine Reliable Vigor uses safely by checking if they actually have the feature
+        has_vigor = False
+        for a in actions.actions:
+            if a.name == "Reliable Vigor":
+                has_vigor = True
+                
+        if has_vigor:
+            clevel = normalized_classes.get("Guardian", 0)
+            uses = 3
+            if clevel >= 9: uses = 4
+            if clevel >= 13: uses = 5
+            if clevel >= 17: uses = 6
+            consumables.append({
+                "name": "Reliable Vigor",
+                "maxv": uses,
+                "value": uses,
+                "reset": "long"
+            })
 
         character = Character(
             owner_id,
