@@ -69,7 +69,7 @@ class CombatSlashCog(commands.Cog):
                 choices.append(c.name)
         return choices[:25]
 
-    @commands.slash_command(name="cast", description="Cast a Force or Tech power.")
+    @commands.slash_command(name="power", description="Cast a Force or Tech power.")
     async def slash_cast(
         self, 
         inter: disnake.ApplicationCommandInteraction,
