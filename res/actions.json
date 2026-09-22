@@ -33520,10 +33520,10 @@
         "snippet": "On your turn, you can expend a use of your Channel the Force (no action required) and reduce your speed by half to gain advantage on the next ability check or attack roll you make using Strength befor...",
         "automation": [
             {
-                "type": "consume",
-                "consumableId": "Channel the Force",
-                "amount": 1,
-                "errorBehavior": "warn"
+                "type": "counter",
+                "counter": "Channel the Force",
+                "amount": "1",
+                "errorBehaviour": "warn"
             },
             {
                 "type": "target",
@@ -46742,10 +46742,10 @@
         "snippet": "As an action, you can expend a use of your Channel the Force to sap the life from a hostile creature you can see within 60 feet. That creature must make a Constitution saving throw. On a failed save, ...",
         "automation": [
             {
-                "type": "consume",
-                "consumableId": "Channel the Force",
-                "amount": 1,
-                "errorBehavior": "warn"
+                "type": "counter",
+                "counter": "Channel the Force",
+                "amount": "1",
+                "errorBehaviour": "warn"
             },
             {
                 "type": "target",
@@ -46783,10 +46783,10 @@
         "snippet": "As a bonus action, you can expend a use of your Channel the Force and touch a beast or humanoid within 5 feet of you. That creature regains hit points equal to your guardian level + your Wisdom modifi...",
         "automation": [
             {
-                "type": "consume",
-                "consumableId": "Channel the Force",
-                "amount": 1,
-                "errorBehavior": "warn"
+                "type": "counter",
+                "counter": "Channel the Force",
+                "amount": "1",
+                "errorBehaviour": "warn"
             },
             {
                 "type": "target",
