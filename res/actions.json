@@ -4694,7 +4694,7 @@
                         "name": "Critically Analyzed",
                         "duration": 10,
                         "effects": "",
-                        "desc": "The Scholar can use their Intelligence modifier for finesse and blaster weapon attack and damage rolls against this target."
+                        "desc": "**If Hostile:** Scholar may use their INT mod for finesse/blaster attack and damage rolls against you.\n**If Friendly:** You may end this effect on yourself (no action) to add the Scholar's INT mod (<intelligenceMod>) to one attack roll, ability check, or saving throw."
                     }
                 ]
             }
@@ -42366,7 +42366,27 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When an ally is hit with an attack roll, you can use your reaction and roll a Kinetic Combat die to add it to your ally's AC, potentially causing the attack to miss.",
-        "automation": []
+        "automation": [
+            {
+                "type": "target",
+                "target": "self",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Deflection",
+                        "duration": 1,
+                        "effects": "",
+                        "desc": "Add 1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17))) to AC against this attack."
+                    }
+                ]
+            },
+            {
+                "type": "counter",
+                "counter": "Force Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            }
+        ]
     },
     {
         "name": "Double Strike",
@@ -42388,7 +42408,27 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When an ally moves on their turn, you can use your reaction and roll a Kinetic Combat die to increase their speed by 5 x the amount rolled until the end of the turn.",
-        "automation": []
+        "automation": [
+            {
+                "type": "counter",
+                "counter": "Force Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            },
+            {
+                "type": "target",
+                "target": "self",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Slow Time",
+                        "duration": 1,
+                        "effects": "",
+                        "desc": "Increase speed by 5 x 1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17))) until end of turn."
+                    }
+                ]
+            }
+        ]
     },
     {
         "name": "Unbreakable Focus",
@@ -47882,7 +47922,7 @@
                         "name": "Critically Analyzed",
                         "duration": 10,
                         "effects": "",
-                        "desc": "The Scholar can use their Intelligence modifier for finesse and blaster weapon attack and damage rolls against this target."
+                        "desc": "**If Hostile:** Scholar may use their INT mod for finesse/blaster attack and damage rolls against you.\n**If Friendly:** You may end this effect on yourself (no action) to add the Scholar's INT mod (<intelligenceMod>) to one attack roll, ability check, or saving throw."
                     }
                 ]
             }
@@ -48634,7 +48674,27 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When you are the target of an attack, you can roll a Kinetic Combat die and add it to your AC (no action required). You can do so before or after the attack is made, but you must choose to do so befor...",
-        "automation": []
+        "automation": [
+            {
+                "type": "target",
+                "target": "self",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Deflection",
+                        "duration": 1,
+                        "effects": "",
+                        "desc": "Add 1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17))) to AC against this attack."
+                    }
+                ]
+            },
+            {
+                "type": "counter",
+                "counter": "Force Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            }
+        ]
     },
     {
         "name": "Double Strike",
@@ -48656,7 +48716,27 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When you move on your turn, you can roll a Kinetic Combat die to increase your speed by 5 x the amount rolled until the end of your turn.",
-        "automation": []
+        "automation": [
+            {
+                "type": "counter",
+                "counter": "Force Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            },
+            {
+                "type": "target",
+                "target": "self",
+                "effects": [
+                    {
+                        "type": "ieffect",
+                        "name": "Slow Time",
+                        "duration": 1,
+                        "effects": "",
+                        "desc": "Increase speed by 5 x 1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17))) until end of turn."
+                    }
+                ]
+            }
+        ]
     },
     {
         "name": "Sentinel Ideals",

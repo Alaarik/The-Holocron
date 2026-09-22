@@ -79,6 +79,12 @@ class CombatView(disnake.ui.View):
                     bonus = int_mod - base_mod
                     if bonus != 0:
                         args_str += f"-b \"{bonus}\" -d \"{bonus}\" "
+                elif mod_name == "Kinetic Combat":
+                    lvl = 0
+                    for c in self.character.levels:
+                        if c[0] == "Sentinel": lvl = c[1]
+                    die = 4 + 2 * ((lvl >= 5) + (lvl >= 9) + (lvl >= 13) + (lvl >= 17))
+                    args_str += f"-d \"1d{die}\" "
                 elif mod_name == "Sharp Instincts":
                     scholar_levels = 0
                     for c in self.character.levels:
