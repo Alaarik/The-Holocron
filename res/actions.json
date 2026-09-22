@@ -2073,7 +2073,8 @@
                     {
                         "type": "ieffect",
                         "name": "Krayt Dragon Stance",
-                        "duration": 10, "effects": "",
+                        "duration": 10,
+                        "effects": "",
                         "desc": "Deal extra damage equal to Strength modifier on first hit each turn."
                     }
                 ]
@@ -33480,7 +33481,8 @@
                     {
                         "type": "ieffect",
                         "name": "Krayt Dragon Stance",
-                        "duration": 10, "effects": "",
+                        "duration": 10,
+                        "effects": "",
                         "desc": "Deal extra damage equal to Strength modifier on first hit each turn."
                     }
                 ]
@@ -33536,7 +33538,8 @@
                     {
                         "type": "ieffect",
                         "name": "Prone",
-                        "duration": 1, "effects": ""
+                        "duration": 1,
+                        "effects": ""
                     }
                 ]
             }
@@ -47029,7 +47032,24 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When you make your Martial Arts bonus action attack, you can spend 1 focus point to make an additional unarmed strike (no action required). At 11th level, you can instead spend 2 focus points to make ...",
-        "automation": []
+        "automation": [
+            {
+                "type": "counter",
+                "counter": "Focus Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            },
+            {
+                "type": "attack",
+                "hit": [
+                    {
+                        "type": "damage",
+                        "damage": "1d(4 + 2 * ((<classlevel> >= 5) + (<classlevel> >= 9) + (<classlevel> >= 13) + (<classlevel> >= 17)))[kinetic] + max(<dexterityMod>, <strengthMod>)[kinetic]"
+                    }
+                ],
+                "miss": []
+            }
+        ]
     },
     {
         "name": "Patient Defense",
@@ -47040,7 +47060,21 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When you use your bonus action to Disengage, you can spend 1 focus point to also Dodge (no action required). At 11th level, you can instead spend 2 focus points to Dodge and gain an additional reactio...",
-        "automation": []
+        "automation": [
+            {
+                "type": "counter",
+                "counter": "Focus Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            },
+            {
+                "type": "ieffect",
+                "name": "Dodge",
+                "duration": 1,
+                "effects": "",
+                "desc": "Attack rolls against you have disadvantage. You have advantage on Dexterity saving throws."
+            }
+        ]
     },
     {
         "name": "Step of the Wind",
@@ -47051,7 +47085,14 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "When you use your bonus action to Dash, you can spend 1 focus point to double your jump distance for the turn. At 11th level, you can instead spend 2 focus points to gain a flying speed equal to your ...",
-        "automation": []
+        "automation": [
+            {
+                "type": "counter",
+                "counter": "Focus Points",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            }
+        ]
     },
     {
         "name": "Monastic Vows",
