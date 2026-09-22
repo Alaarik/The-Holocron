@@ -80,7 +80,12 @@ class SheetView(disnake.ui.View):
         features = []
         seen_names = set()
         
-        for act in attacks + class_actions:
+        for act in attacks:
+            if act.name not in seen_names:
+                weapons.append(act)
+                seen_names.add(act.name)
+                
+        for act in class_actions:
             if act.name not in seen_names:
                 if getattr(act, "is_weapon", False) or act.name.lower() in weapon_names:
                     weapons.append(act)
