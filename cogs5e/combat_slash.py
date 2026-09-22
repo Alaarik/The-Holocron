@@ -77,6 +77,7 @@ class CombatSlashCog(commands.Cog):
         level: int = commands.Param(description="The level to cast the power at (defaults to base level).", default=None),
         target: str = commands.Param(description="The target of the power.", default="")
     ):
+        await inter.response.defer()
         from cogs5e.models.character import Character
         try:
             character = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
@@ -98,6 +99,7 @@ class CombatSlashCog(commands.Cog):
         from cogs5e.utils.actionutils import cast_spell
         from cogs5e.utils.targetutils import maybe_combat
         from utils.argparser import argparse
+        import traceback
         
         args_str = ""
         if target:
@@ -107,7 +109,6 @@ class CombatSlashCog(commands.Cog):
             
         args = argparse(args_str)
         embed = disnake.Embed()
-        
         
         caster, targets, combat = await maybe_combat(inter, character, args)
             
@@ -126,7 +127,7 @@ class CombatSlashCog(commands.Cog):
             else:
                 await inter.followup.send("Power cast successfully.")
         except Exception as e:
-            await inter.followup.send(f"Error casting power: {e}")
+            await inter.followup.send(f"Error casting power: {e}\n```\n{traceback.format_exc()}\n```")
 
     @slash_cast.autocomplete("power")
     async def cast_power_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
