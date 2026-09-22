@@ -69,5 +69,97 @@ class CombatSlashCog(commands.Cog):
                 choices.append(c.name)
         return choices[:25]
 
+    @commands.slash_command(name="cast", description="Cast a Force or Tech power.")
+    async def slash_cast(
+        self, 
+        inter: disnake.ApplicationCommandInteraction,
+        power: str = commands.Param(description="The power to cast."),
+        level: int = commands.Param(description="The level to cast the power at (defaults to base level).", default=None),
+        target: str = commands.Param(description="The target of the power.", default="")
+    ):
+        from cogs5e.models.character import Character
+        try:
+            character = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
+        except Exception:
+            character = None
+            
+        if not character:
+            return await inter.response.send_message("You do not have an active character.", ephemeral=True)
+            
+        from gamedata.compendium import compendium
+        from gamedata.lookups import search
+        
+        result, strict = search(compendium.spells, power, lambda s: s.name, strict=True)
+        if not result:
+            return await inter.response.send_message(f"Power '{power}' not found in the compendium.", ephemeral=True)
+            
+        spell = result
+        
+        from cogs5e.utils.actionutils import cast_spell
+        from cogs5e.utils.targetutils import maybe_combat
+        from utils.argparser import argparse
+        
+        args_str = ""
+        if target:
+            args_str += f"-t \"{target}\" "
+        if level is not None:
+            args_str += f"-l {level} "
+            
+        args = argparse(args_str)
+        embed = disnake.Embed()
+        
+        await inter.response.defer()
+        
+        caster, targets, combat = await maybe_combat(inter, character, args)
+            
+        try:
+            res = await cast_spell(
+                spell=spell,
+                ctx=inter,
+                caster=caster,
+                targets=targets,
+                args=args,
+                combat=combat
+            )
+            
+            if res.embed:
+                await inter.followup.send(embed=res.embed)
+            else:
+                await inter.followup.send("Power cast successfully.")
+        except Exception as e:
+            await inter.followup.send(f"Error casting power: {e}")
+
+    @slash_cast.autocomplete("power")
+    async def cast_power_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        from cogs5e.models.character import Character
+        try:
+            character = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
+        except Exception:
+            return []
+            
+        choices = []
+        if hasattr(character, "spellbook") and character.spellbook:
+            for s in character.spellbook.spells:
+                if user_input.lower() in s.name.lower():
+                    if s.name not in choices:
+                        choices.append(s.name)
+        return choices[:25]
+        
+    @slash_cast.autocomplete("target")
+    async def cast_target_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        from cogs5e.initiative import Combat
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat:
+                return []
+        except Exception:
+            return []
+            
+        choices = []
+        for c in combat.combatants:
+            if user_input.lower() in c.name.lower():
+                choices.append(c.name)
+        return choices[:25]
+
 def setup(bot):
     bot.add_cog(CombatSlashCog(bot))
