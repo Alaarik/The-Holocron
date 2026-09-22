@@ -809,6 +809,9 @@ class GoogleSheet(SheetLoaderABC):
         from cogs5e.models.sheet.action import Action
         for f in feature_names:
             if not f or f.lower() in found_names or f.lower().strip() == "read me": continue
+            stripped = f.split(":", 1)[-1].strip() if ":" in f else f
+            if stripped.lower() in found_names: continue
+            if ("the " + stripped.lower()) in found_names: continue
             actions.append(Action(name=f, uid=None, id=0, type_id=0, activation_type=None))
             
         return Actions(actions)

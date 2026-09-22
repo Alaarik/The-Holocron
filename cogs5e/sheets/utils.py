@@ -72,6 +72,17 @@ def get_actions_for_names(names):
 
     for name in names:
         g_actions = get_actions_for_name(name)
+        
+        # SW5e fuzzy prefix strip (e.g. "Feat: Alert" -> "Alert")
+        stripped = name
+        if not g_actions and ":" in name:
+            stripped = name.split(":", 1)[-1].strip()
+            g_actions = get_actions_for_name(stripped)
+            
+        # SW5e bypass: sometimes users drop "The " (e.g. "Way of the Krayt Dragon")
+        if not g_actions and not stripped.lower().startswith("the "):
+            g_actions = get_actions_for_name("The " + stripped)
+            
         # in some cases, a very generic feature name (e.g. "Channel Divinity") will grant far more actions than we want
         # code snippet to determine this threshold:
         # bleps = [(name, len(actions), actions) for name, actions in discoverer.actions_granted_by_name.items()]
