@@ -778,6 +778,14 @@ class GoogleSheet(SheetLoaderABC):
         else:
             feature_names = self.character_data.value_range("Z45:AH56")
         actions = get_actions_for_names(feature_names)
+        
+        # SW5e bypass: add unrecognised features as dummy actions
+        found_names = {a.name.lower() for a in actions}
+        from cogs5e.models.sheet.action import Action
+        for f in feature_names:
+            if not f or f.lower() in found_names: continue
+            actions.append(Action(name=f, uid=None, id=0, type_id=0, activation_type=None))
+            
         return Actions(actions)
 
     # helper methods
