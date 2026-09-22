@@ -783,7 +783,7 @@ class GoogleSheet(SheetLoaderABC):
         found_names = {a.name.lower() for a in actions}
         from cogs5e.models.sheet.action import Action
         for f in feature_names:
-            if not f or f.lower() in found_names: continue
+            if not f or f.lower() in found_names or f.lower().strip() == "read me": continue
             actions.append(Action(name=f, uid=None, id=0, type_id=0, activation_type=None))
             
         return Actions(actions)
