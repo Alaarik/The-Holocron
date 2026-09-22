@@ -272,6 +272,8 @@ class TempCharacter:
 
 class GoogleSheet(SheetLoaderABC):
     def __init__(self, url):
+        if url.startswith("google-"):
+            url = url[7:]
         super(GoogleSheet, self).__init__(url)
         self.args = None
         self.additional = None
