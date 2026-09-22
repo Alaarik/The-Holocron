@@ -11,9 +11,25 @@ class CombatView(disnake.ui.View):
         
         # Determine available modifiers
         self.valid_modifiers = []
-        for atk in self.character.attacks:
-            if atk.name in ["Sneak Attack", "Force-Empowered Strikes", "Ranger's Quarry", "Kinetic Combat", "Superiority Die", "Potent Aptitude"]:
-                self.valid_modifiers.append(atk.name)
+        
+        pools = []
+        if hasattr(self.character, 'attacks') and self.character.attacks:
+            pools.extend(self.character.attacks)
+        if hasattr(self.character, 'actions') and self.character.actions:
+            pools.extend(self.character.actions)
+            
+        for feature in pools:
+            if feature.name in [
+                "Sneak Attack", 
+                "Force-Empowered Strikes", 
+                "Ranger's Quarry", 
+                "Kinetic Combat", 
+                "Superiority Die", 
+                "Potent Aptitude",
+                "The Way of the Krayt Dragon"
+            ]:
+                if feature.name not in self.valid_modifiers:
+                    self.valid_modifiers.append(feature.name)
                 
         if self.valid_modifiers:
             self.add_item(ModifierSelect(self.valid_modifiers))
@@ -44,6 +60,10 @@ class CombatView(disnake.ui.View):
                     args_str += f"-d \"{math.ceil(operative_levels/2)}d6\" "
                 elif mod_name == "Force-Empowered Strikes":
                     args_str += f"-d \"1d8\" " 
+                elif mod_name == "The Way of the Krayt Dragon":
+                    # Krayt Dragon adds Strength Mod to damage
+                    str_mod = self.character.skills.strength.modifier
+                    args_str += f'-d "{str_mod}" '
                 elif mod_name == "Ranger's Quarry":
                     scout_levels = 0
                     for c in self.character.levels:
