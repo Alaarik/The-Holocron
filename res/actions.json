@@ -1250,7 +1250,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Makashi Form:** 3rd level_\r\nAs a bonus action, you can enter an offensive stance for one minute. While in this stance, you add your Wisdom or Charisma modifier (your choice) to the first melee weap...",
+        "snippet": "_**Makashi Form:** 3rd level_\r\nAs a bonus action, you can enter an offensive stance for one minute. While in this stance, you add your Wisdom or Strength modifier (your choice) to the first melee weap...",
         "automation": []
     },
     {
@@ -2074,7 +2074,7 @@
                         "type": "ieffect",
                         "name": "Krayt Dragon Stance",
                         "duration": 10,
-                        "desc": "Deal extra damage equal to Charisma modifier on first hit each turn."
+                        "desc": "Deal extra damage equal to Strength modifier on first hit each turn."
                     }
                 ]
             }
@@ -4233,7 +4233,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Monk:** 1st level_\r\nWhile you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom or Charisma modifier (your choice).",
+        "snippet": "_**Monk:** 1st level_\r\nWhile you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom or Strength modifier (your choice).",
         "automation": []
     },
     {
@@ -5102,7 +5102,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Sentinel:** 15th level_\r\nWhen you are subjected to an effect that forces you to make a saving throw, you can spend 2 force points to add your Wisdom or Charisma modifier (your choice, minimum of on...",
+        "snippet": "_**Sentinel:** 15th level_\r\nWhen you are subjected to an effect that forces you to make a saving throw, you can spend 2 force points to add your Wisdom or Strength modifier (your choice, minimum of on...",
         "automation": []
     },
     {
@@ -10679,7 +10679,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Bolstering Practice:** 13th level_\r\nWhen attempting to move stealthily as a group, you may choose a number of creatures equal to your Charisma modifier. Those creatures may add their proficiency to...",
+        "snippet": "_**Bolstering Practice:** 13th level_\r\nWhen attempting to move stealthily as a group, you may choose a number of creatures equal to your Strength modifier. Those creatures may add their proficiency to...",
         "automation": []
     },
     {
@@ -14452,7 +14452,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Ruffian Practice:** 3rd level_\r\nYour unmistakable confidence propels you into battle. You can add your Charisma modifier to your initiative rolls.\r\nAdditionally, you don't need advantage on your at...",
+        "snippet": "_**Ruffian Practice:** 3rd level_\r\nYour unmistakable confidence propels you into battle. You can add your Strength modifier to your initiative rolls.\r\nAdditionally, you don't need advantage on your at...",
         "automation": []
     },
     {
@@ -15244,7 +15244,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Trakata Form:** 7th level_\r\nWhen you make a Dexterity (Sleight of Hand) check, you gain a bonus to that check equal to your Wisdom or Charisma modifier (your choice, minimum of one).",
+        "snippet": "_**Trakata Form:** 7th level_\r\nWhen you make a Dexterity (Sleight of Hand) check, you gain a bonus to that check equal to your Wisdom or Strength modifier (your choice, minimum of one).",
         "automation": []
     },
     {
@@ -15266,7 +15266,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Trakata Form:** 15th level_\r\nWhen a creature misses you with an attack, you gain temporary hit points equal to your Wisdom or Charisma modifier (your choice, minimum of one), and you add your Wisdo...",
+        "snippet": "_**Trakata Form:** 15th level_\r\nWhen a creature misses you with an attack, you gain temporary hit points equal to your Wisdom or Strength modifier (your choice, minimum of one), and you add your Wisdo...",
         "automation": []
     },
     {
@@ -15673,7 +15673,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Confluence:** 6th level_\r\nWhile you have temporary hit points, you can add half your Wisdom or Charisma modifier (your choice, minimum of one) to any damage or healing you do with force powe...",
+        "snippet": "_**Way of Confluence:** 6th level_\r\nWhile you have temporary hit points, you can add half your Wisdom or Strength modifier (your choice, minimum of one) to any damage or healing you do with force powe...",
         "automation": []
     },
     {
@@ -15728,7 +15728,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Endurance:** 10th level_\r\nWhen you take damage, you can use your reaction and expend a force point to regain health equal to 1d8 + your Wisdom or Charisma modifier (your choice, minimum of o...",
+        "snippet": "_**Way of Endurance:** 10th level_\r\nWhen you take damage, you can use your reaction and expend a force point to regain health equal to 1d8 + your Wisdom or Strength modifier (your choice, minimum of o...",
         "automation": []
     },
     {
@@ -15904,7 +15904,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Charisma modifier (your...",
+        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Strength modifier (your...",
         "automation": []
     },
     {
@@ -15915,7 +15915,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Charisma modifier (your...",
+        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Strength modifier (your...",
         "automation": []
     },
     {
@@ -15926,7 +15926,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Charisma modifier (your...",
+        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Strength modifier (your...",
         "automation": []
     },
     {
@@ -15937,7 +15937,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Charisma modifier (your...",
+        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Strength modifier (your...",
         "automation": []
     },
     {
@@ -15948,7 +15948,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Charisma modifier (your...",
+        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Strength modifier (your...",
         "automation": []
     },
     {
@@ -30996,7 +30996,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your operative level, as shown in the Force Points column of the Beguiler Practice Forcecasting table, + your Wisdom or Charisma modifier (your choice). You ...",
+        "snippet": "You have a number of force points equal to your operative level, as shown in the Force Points column of the Beguiler Practice Forcecasting table, + your Wisdom or Strength modifier (your choice). You ...",
         "automation": []
     },
     {
@@ -32393,7 +32393,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Makashi Form:** 3rd level_\r\nAs a bonus action, you can enter an offensive stance for one minute. While in this stance, you add your Wisdom or Charisma modifier (your choice) to the first melee weap...",
+        "snippet": "_**Makashi Form:** 3rd level_\r\nAs a bonus action, you can enter an offensive stance for one minute. While in this stance, you add your Wisdom or Strength modifier (your choice) to the first melee weap...",
         "automation": []
     },
     {
@@ -32481,7 +32481,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your berserker level, as shown in the Force Points column of the Marauder Approach Forcecasting table, + your Wisdom or Charisma modifier (your choice). You ...",
+        "snippet": "You have a number of force points equal to your berserker level, as shown in the Force Points column of the Marauder Approach Forcecasting table, + your Wisdom or Strength modifier (your choice). You ...",
         "automation": []
     },
     {
@@ -33481,7 +33481,7 @@
                         "type": "ieffect",
                         "name": "Krayt Dragon Stance",
                         "duration": 10,
-                        "desc": "Deal extra damage equal to Charisma modifier on first hit each turn."
+                        "desc": "Deal extra damage equal to Strength modifier on first hit each turn."
                     }
                 ]
             }
@@ -34485,7 +34485,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your fighter level, as shown in the Force Points column of the Adept Specialist Forcecasting table, + your Wisdom or Charisma modifier (your choice). You use...",
+        "snippet": "You have a number of force points equal to your fighter level, as shown in the Force Points column of the Adept Specialist Forcecasting table, + your Wisdom or Strength modifier (your choice). You use...",
         "automation": []
     },
     {
@@ -34595,7 +34595,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your monk level, as shown in the Force Points column of the Aing-Tii Order Forcecasting table, + your Wisdom or Charisma modifier (your choice). You use thes...",
+        "snippet": "You have a number of force points equal to your monk level, as shown in the Force Points column of the Aing-Tii Order Forcecasting table, + your Wisdom or Strength modifier (your choice). You use thes...",
         "automation": []
     },
     {
@@ -34793,7 +34793,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your scholar level, as shown in the Force Points column of the Archaeologist Pursuit Forcecasting table, + your Intelligence, Wisdom, or Charisma modifier (y...",
+        "snippet": "You have a number of force points equal to your scholar level, as shown in the Force Points column of the Archaeologist Pursuit Forcecasting table, + your Intelligence, Wisdom, or Strength modifier (y...",
         "automation": []
     },
     {
@@ -37554,7 +37554,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Bolstering Practice:** 13th level_\r\nWhen attempting to move stealthily as a group, you may choose a number of creatures equal to your Charisma modifier. Those creatures may add their proficiency to...",
+        "snippet": "_**Bolstering Practice:** 13th level_\r\nWhen attempting to move stealthily as a group, you may choose a number of creatures equal to your Strength modifier. Those creatures may add their proficiency to...",
         "automation": []
     },
     {
@@ -42757,7 +42757,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Performance Practice:** 17th level_\r\nYour confidence when putting on a show has extended into combat. You add your Charisma modifier to initiative checks. Additionally, any creature who fails a sav...",
+        "snippet": "_**Performance Practice:** 17th level_\r\nYour confidence when putting on a show has extended into combat. You add your Strength modifier to initiative checks. Additionally, any creature who fails a sav...",
         "automation": []
     },
     {
@@ -43142,7 +43142,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Ruffian Practice:** 3rd level_\r\nYour unmistakable confidence propels you into battle. You can add your Charisma modifier to your initiative rolls.\r\n\r\nAdditionally, you don't need advantage on your ...",
+        "snippet": "_**Ruffian Practice:** 3rd level_\r\nYour unmistakable confidence propels you into battle. You can add your Strength modifier to your initiative rolls.\r\n\r\nAdditionally, you don't need advantage on your ...",
         "automation": []
     },
     {
@@ -44110,7 +44110,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "The totems are listed in alphabetical order. If a totem requires a saving throw, the DC = 8 + your proficiency bonus + your Wisdom or Charisma modifier (your choice).",
+        "snippet": "The totems are listed in alphabetical order. If a totem requires a saving throw, the DC = 8 + your proficiency bonus + your Wisdom or Strength modifier (your choice).",
         "automation": []
     },
     {
@@ -44286,7 +44286,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Trakata Form:** 7th level_\r\nWhen you make a Dexterity (Sleight of Hand) check, you gain a bonus to that check equal to your Wisdom or Charisma modifier (your choice, minimum of one).",
+        "snippet": "_**Trakata Form:** 7th level_\r\nWhen you make a Dexterity (Sleight of Hand) check, you gain a bonus to that check equal to your Wisdom or Strength modifier (your choice, minimum of one).",
         "automation": []
     },
     {
@@ -44297,7 +44297,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Trakata Form:** 15th level_\r\nWhen a creature misses you with an attack, you gain temporary hit points equal to your Wisdom or Charisma modifier (your choice, minimum of one), and you add your Wisdo...",
+        "snippet": "_**Trakata Form:** 15th level_\r\nWhen a creature misses you with an attack, you gain temporary hit points equal to your Wisdom or Strength modifier (your choice, minimum of one), and you add your Wisdo...",
         "automation": []
     },
     {
@@ -44715,7 +44715,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Confluence:** 6th level_\r\nWhile you have temporary hit points, you can add half your Wisdom or Charisma modifier (your choice, minimum of one) to any damage or healing you do with force powe...",
+        "snippet": "_**Way of Confluence:** 6th level_\r\nWhile you have temporary hit points, you can add half your Wisdom or Strength modifier (your choice, minimum of one) to any damage or healing you do with force powe...",
         "automation": []
     },
     {
@@ -44781,7 +44781,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Endurance:** 10th level_\r\nWhen you take damage, you can use your reaction and expend a force point to regain health equal to 1d8 + your Wisdom or Charisma modifier (your choice, minimum of o...",
+        "snippet": "_**Way of Endurance:** 10th level_\r\nWhen you take damage, you can use your reaction and expend a force point to regain health equal to 1d8 + your Wisdom or Strength modifier (your choice, minimum of o...",
         "automation": []
     },
     {
@@ -44858,7 +44858,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Manipulation:** 18th level_\r\nWhen you reduce a hostile creature to 0 hit points while Saber Storm is active, you gain temporary force points equal to your Wisdom or Charisma modifier (your c...",
+        "snippet": "_**Way of Manipulation:** 18th level_\r\nWhen you reduce a hostile creature to 0 hit points while Saber Storm is active, you gain temporary force points equal to your Wisdom or Strength modifier (your c...",
         "automation": []
     },
     {
@@ -44869,7 +44869,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Charisma modifier (your...",
+        "snippet": "_**Way of Negation:** 3rd, 5th, 9th, 13th, and 17th level_\r\nWhen you fail a saving throw, you can use your reaction to gain a bonus to that saving throw equal to your Wisdom or Strength modifier (your...",
         "automation": []
     },
     {
@@ -46013,7 +46013,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your consular level x 4, as shown in the Force Points column of the consular table, + your Wisdom or Charisma modifier (your choice). You use these force poi...",
+        "snippet": "You have a number of force points equal to your consular level x 4, as shown in the Force Points column of the consular table, + your Wisdom or Strength modifier (your choice). You use these force poi...",
         "automation": []
     },
     {
@@ -46101,7 +46101,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You can add both your Wisdom and Charisma modifier to your maximum number of force points, instead of just one.",
+        "snippet": "You can add both your Wisdom and Strength modifier to your maximum number of force points, instead of just one.",
         "automation": []
     },
     {
@@ -46211,7 +46211,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "When you roll damage for a power, you can spend 1 additional force point to reroll a number of the damage dice up to your Wisdom or Charisma modifier (your choice, minimum of one). You must use the ne...",
+        "snippet": "When you roll damage for a power, you can spend 1 additional force point to reroll a number of the damage dice up to your Wisdom or Strength modifier (your choice, minimum of one). You must use the ne...",
         "automation": []
     },
     {
@@ -46695,7 +46695,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your guardian level x 2, as shown in the Force Points column of the guardian table, + your Wisdom or Charisma modifier (your choice). You use these force poi...",
+        "snippet": "You have a number of force points equal to your guardian level x 2, as shown in the Force Points column of the guardian table, + your Wisdom or Strength modifier (your choice). You use these force poi...",
         "automation": []
     },
     {
@@ -46757,13 +46757,13 @@
                         "fail": [
                             {
                                 "type": "damage",
-                                "damage": "(<classlevel> + <charismaMod>)[necrotic]"
+                                "damage": "(<classlevel> + <strengthMod>)[necrotic]"
                             }
                         ],
                         "success": [
                             {
                                 "type": "damage",
-                                "damage": "((<classlevel> + <charismaMod>) // 2)[necrotic]"
+                                "damage": "((<classlevel> + <strengthMod>) // 2)[necrotic]"
                             }
                         ],
                         "dc": "<spellDC>"
@@ -46940,7 +46940,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You and friendly creatures within 5 feet of you gain a bonus to the first melee weapon damage rolls you make each round equal to your Charisma modifier (minimum of +1).",
+        "snippet": "You and friendly creatures within 5 feet of you gain a bonus to the first melee weapon damage rolls you make each round equal to your Strength modifier (minimum of +1).",
         "automation": []
     },
     {
@@ -46973,7 +46973,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "Whenever a friendly creature starts its turn within 5 feet of you, that creature gains temporary hit points equal to your Wisdom or Charisma modifier (your choice, minimum of one).",
+        "snippet": "Whenever a friendly creature starts its turn within 5 feet of you, that creature gains temporary hit points equal to your Wisdom or Strength modifier (your choice, minimum of one).",
         "automation": []
     },
     {
@@ -47006,7 +47006,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Monk:** 1st level_\r\nWhile you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom or Charisma modifier (your choice).",
+        "snippet": "_**Monk:** 1st level_\r\nWhile you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom or Strength modifier (your choice).",
         "automation": []
     },
     {
@@ -47413,7 +47413,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "Your maximum focus increases by an amount equal to half your Wisdom or Charisma modifier (your choice, minimum of +1).",
+        "snippet": "Your maximum focus increases by an amount equal to half your Wisdom or Strength modifier (your choice, minimum of +1).",
         "automation": []
     },
     {
@@ -48469,7 +48469,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "You have a number of force points equal to your sentinel level x 3, as shown in the Force Points column of the sentinel table, + your Wisdom or Charisma modifier (your choice). You use these force poi...",
+        "snippet": "You have a number of force points equal to your sentinel level x 3, as shown in the Force Points column of the sentinel table, + your Wisdom or Strength modifier (your choice). You use these force poi...",
         "automation": []
     },
     {
@@ -48612,7 +48612,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "_**Sentinel:** 15th level_\r\nWhen you are subjected to an effect that forces you to make a saving throw, you can spend 2 force points to add your Wisdom or Charisma modifier (your choice, minimum of on...",
+        "snippet": "_**Sentinel:** 15th level_\r\nWhen you are subjected to an effect that forces you to make a saving throw, you can spend 2 force points to add your Wisdom or Strength modifier (your choice, minimum of on...",
         "automation": []
     },
     {
@@ -48656,7 +48656,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "Choose one of your skill or tool proficiencies. When you make an ability check with the chosen skill or tool, you can add half your Wisdom or Charisma modifier (your choice, minimum of one).\r\n\r\nAdditi...",
+        "snippet": "Choose one of your skill or tool proficiencies. When you make an ability check with the chosen skill or tool, you can add half your Wisdom or Strength modifier (your choice, minimum of one).\r\n\r\nAdditi...",
         "automation": []
     },
     {
@@ -48722,7 +48722,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "When you finish a short or long rest, you gain a number of temporary force points equal to half your Wisdom or Charisma modifier (your choice, minimum of one). When you would spend a force point while...",
+        "snippet": "When you finish a short or long rest, you gain a number of temporary force points equal to half your Wisdom or Strength modifier (your choice, minimum of one). When you would spend a force point while...",
         "automation": []
     },
     {
@@ -48733,7 +48733,7 @@
         "activation_type": 8,
         "source_feature_id": 0,
         "source_feature_type_id": 0,
-        "snippet": "When you roll a Hit Die to regain hit points, you may use your Wisdom or Charisma modifier in place of your Constitution modifier when determining the number of hit points you regain.\r\n\r\nAdditionally,...",
+        "snippet": "When you roll a Hit Die to regain hit points, you may use your Wisdom or Strength modifier in place of your Constitution modifier when determining the number of hit points you regain.\r\n\r\nAdditionally,...",
         "automation": []
     }
 ]
