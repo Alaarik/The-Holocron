@@ -20,15 +20,15 @@ class CombatSlashCog(commands.Cog):
             character = None
             
         if not character:
-            return await inter.followup.send("You do not have an active character.", ephemeral=True)
+            return await inter.followup.send("You do not have an active character.")
             
         atk = character.get_attack(action)
         if not atk:
-            return await inter.response.send_message(f"Action '{action}' not found on your sheet.", ephemeral=True)
+            return await inter.response.send_message(f"Action '{action}' not found on your sheet.")
 
         view = CombatView(inter, action, target, character)
         if len(view.valid_modifiers) > 0:
-            await inter.response.send_message("Select any modifiers for your attack, then click Roll:", view=view, ephemeral=True)
+            await inter.response.send_message("Select any modifiers for your attack, then click Roll:", view=view)
         else:
             await view.confirm_roll(None, inter)
 
@@ -84,14 +84,14 @@ class CombatSlashCog(commands.Cog):
             character = None
             
         if not character:
-            return await inter.followup.send("You do not have an active character.", ephemeral=True)
+            return await inter.followup.send("You do not have an active character.")
             
         from gamedata.compendium import compendium
         from gamedata.lookups import search
         
         result, strict = search(compendium.spells, power, lambda s: s.name, strict=True)
         if not result:
-            return await inter.followup.send(f"Power '{power}' not found in the compendium.", ephemeral=True)
+            return await inter.followup.send(f"Power '{power}' not found in the compendium.")
             
         spell = result
         
