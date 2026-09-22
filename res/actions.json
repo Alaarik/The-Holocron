@@ -33610,7 +33610,14 @@
         "source_feature_id": 0,
         "source_feature_type_id": 0,
         "snippet": "If the d20 result for a Strength check or saving throw is less than your guardian level, you can use your guardian level in place of the result. You can use this feature three times. You gain an addit...",
-        "automation": []
+        "automation": [
+            {
+                "type": "counter",
+                "counter": "Reliable Vigor",
+                "amount": "1",
+                "errorBehaviour": "warn"
+            }
+        ]
     },
     {
         "name": "Presence",
