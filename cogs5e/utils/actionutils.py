@@ -366,10 +366,16 @@ async def cast_spell(
         embed.add_field(name="At Higher Levels", value=smart_trim(spell.higherlevels), inline=False)
 
     if cast_level > 0 and not ignore:
-        remaining_casts = caster.spellbook.remaining_casts_of(spell, cast_level)
-        if not (isinstance(caster.spellbook, monster.MonsterSpellbook) and spell.name in caster.spellbook.at_will):
-            remaining_casts += " (-1)"
-        embed.add_field(name="Spell Slots", value=remaining_casts)
+        # SW5e: show Force/Tech Points remaining instead of spell slots
+        point_cost = cast_level + 1
+        pool_name = "Tech Points" if getattr(spell, 'power_type', '') == 'tech' else "Force Points"
+        counter = None
+        if hasattr(caster, 'get_consumable'):
+            counter = caster.get_consumable(pool_name)
+        if counter:
+            embed.add_field(name=pool_name, value=f"{counter.value}/{counter.max} remaining (-{point_cost})")
+        else:
+            embed.add_field(name=pool_name, value=f"No {pool_name} counter found. (-{point_cost})")
 
     if conc_conflict:
         conflicts = ", ".join(e.name for e in conc_conflict)
