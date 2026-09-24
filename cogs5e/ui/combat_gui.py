@@ -34,6 +34,20 @@ class CombatView(disnake.ui.View):
                 
         if self.valid_modifiers:
             self.add_item(ModifierSelect(self.valid_modifiers))
+            
+        atk_obj = self.character.get_attack(self.weapon)
+        is_attack = False
+        if atk_obj and hasattr(atk_obj, "automation") and atk_obj.automation:
+            for effect in atk_obj.automation:
+                if effect.type == "target":
+                    for sub_effect in effect.effects:
+                        if sub_effect.type == "attack":
+                            is_attack = True
+        
+        for child in self.children:
+            if isinstance(child, disnake.ui.Button):
+                child.label = f"Roll Attack" if is_attack else f"Use Action"
+
 
     @disnake.ui.button(label="Roll Attack", style=disnake.ButtonStyle.primary)
     async def confirm_roll(self, button: disnake.ui.Button, interaction: disnake.MessageInteraction):
