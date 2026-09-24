@@ -1472,7 +1472,7 @@ class SheetManager(commands.Cog):
             if reset_list:
                 desc += "**Counters Reset:**\n"
                 for counter, result in reset_list:
-                    desc += f"- **{counter.name}**: {result}\n"
+                    desc += f"- **{counter.name}**: {result.old_value} ➔ {result.new_value} ({result.delta})\n"
 
             embed.description = desc
         else:
@@ -1484,7 +1484,7 @@ class SheetManager(commands.Cog):
             if reset_list:
                 desc += "**Counters Reset:**\n"
                 for counter, result in reset_list:
-                    desc += f"- **{counter.name}**: {result}\n"
+                    desc += f"- **{counter.name}**: {result.old_value} ➔ {result.new_value} ({result.delta})\n"
             else:
                 desc += "No counters reset."
 
