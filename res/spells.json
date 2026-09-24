@@ -6197,7 +6197,22 @@
         "partitionKey": "Core",
         "rowKey": "Knight Speed",
         "timestamp": "2023-05-30T20:15:09.1161116+00:00",
-        "eTag": "W/\"datetime'2023-05-30T20%3A15%3A09.1161116Z'\""
+        "eTag": "W/\"datetime'2023-05-30T20%3A15%3A09.1161116Z'\"",
+        "automation": [
+            {
+                "type": "target",
+                "target": "all",
+                "effects": [
+                    {
+                        "type": "ieffect2",
+                        "name": "Knight Speed",
+                        "duration": "10",
+                        "effects": "-ac 2 -adv dex",
+                        "desc": "Speed is doubled. Advantage on Dex saving throws. +2 AC. Additional action on each turn (Attack, Dash, Disengage, Hide, or Use Object)."
+                    }
+                ]
+            }
+        ]
     },
     {
         "name": "Kolto Cloud",
