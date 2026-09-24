@@ -230,6 +230,8 @@ async def cast_spell(
         counter = None
         if hasattr(caster, "get_consumable"):
             counter = caster.get_consumable(pool_name)
+        elif hasattr(caster, "character") and hasattr(caster.character, "get_consumable"):
+            counter = caster.character.get_consumable(pool_name)
         
         # can I cast this power?
         if point_cost > 0 and (counter is None or counter.value < point_cost):
@@ -277,7 +279,6 @@ async def cast_spell(
         # use resource
         if point_cost > 0 and counter:
             counter.set(counter.value - point_cost)
-            await caster.commit(ctx)
 
     # base stat stuff
     mod_arg = args.last("mod", type_=int)
@@ -372,6 +373,8 @@ async def cast_spell(
         counter = None
         if hasattr(caster, 'get_consumable'):
             counter = caster.get_consumable(pool_name)
+        elif hasattr(caster, "character") and hasattr(caster.character, "get_consumable"):
+            counter = caster.character.get_consumable(pool_name)
         if counter:
             embed.add_field(name=pool_name, value=f"{counter.value}/{counter.max} remaining (-{point_cost})")
         else:
