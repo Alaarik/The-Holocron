@@ -50284,10 +50284,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Ataru Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** Jump distance doubled; standing from prone costs 5 ft; advantage on Acrobatics.\n**Technique (1 FP):** On Attack action, spend 1 FP to leap up to 15 ft to an adjacent unoccupied space without provoking. First melee attack against that target gains +WIS/CHA to hit."
+            "desc": "**Stance (Passive):** Jump distance doubled; standing from prone costs 5 ft; advantage on Acrobatics.\n**Technique (1 FP):** On Attack action, spend 1 FP to leap up to 15 ft to an adjacent unoccupied space without provoking. First melee attack against that target gains +WIS/CHA to hit.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50332,10 +50350,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Djem So Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** On melee hit using STR, push target 5 ft if Large or smaller.\n**Technique (1 FP):** Reaction when hit by melee attack: spend 1 FP to reduce damage by STR mod. Next melee attack against them before end of your next turn gains advantage and +STR mod extra damage."
+            "desc": "**Stance (Passive):** On melee hit using STR, push target 5 ft if Large or smaller.\n**Technique (1 FP):** Reaction when hit by melee attack: spend 1 FP to reduce damage by STR mod. Next melee attack against them before end of your next turn gains advantage and +STR mod extra damage.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50428,10 +50464,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Juyo Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** Weapon critical hit range expanded by 1 (e.g., 19-20).\n**Technique (1 FP):** On crit or reducing hostile to 0 HP with melee attack: spend 1 FP to immediately make one additional melee weapon attack as a free action."
+            "desc": "**Stance (Passive):** Weapon critical hit range expanded by 1 (e.g., 19-20).\n**Technique (1 FP):** On crit or reducing hostile to 0 HP with melee attack: spend 1 FP to immediately make one additional melee weapon attack as a free action.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50452,10 +50506,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Makashi Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** Hostiles can't gain advantage on you if no other enemy is within 5 ft. On melee miss against you, move 5 ft without provoking.\n**Technique (1 FP):** Reaction when missed by a melee attack: spend 1 FP to make a single melee counter-attack."
+            "desc": "**Stance (Passive):** Hostiles can't gain advantage on you if no other enemy is within 5 ft. On melee miss against you, move 5 ft without provoking.\n**Technique (1 FP):** Reaction when missed by a melee attack: spend 1 FP to make a single melee counter-attack.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50476,10 +50548,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Niman Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** +1 Force power save DC and +1 Force attack rolls while wielding a lightsaber/vibroweapon.\n**Technique (1 FP):** When you use your action to cast a Force power, spend 1 FP to make one melee weapon attack as a Bonus Action."
+            "desc": "**Stance (Passive):** +1 Force power save DC and +1 Force attack rolls while wielding a lightsaber/vibroweapon.\n**Technique (1 FP):** When you use your action to cast a Force power, spend 1 FP to make one melee weapon attack as a Bonus Action.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50500,10 +50590,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Shien Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** +1 AC against ranged weapon attacks. Can wield a two-handed weapon in one hand with a reverse grip.\n**Technique (1 FP):** Reaction when ranged/blaster attack misses you/ally within 5 ft: spend 1 FP to redirect shot at target within 30 ft (ranged weapon attack using WIS/CHA mod)."
+            "desc": "**Stance (Passive):** +1 AC against ranged weapon attacks. Can wield a two-handed weapon in one hand with a reverse grip.\n**Technique (1 FP):** Reaction when ranged/blaster attack misses you/ally within 5 ft: spend 1 FP to redirect shot at target within 30 ft (ranged weapon attack using WIS/CHA mod).",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50524,10 +50632,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Shii-Cho Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** Ignore non-magical/non-tech difficult terrain; +10 ft speed when moving directly toward a hostile.\n**Technique (1 FP):** On melee hit, spend 1 FP to force a STR save (DC 8 + prof + atk mod). On fail, pushed 10 ft and you can step 5 ft into the vacated space without provoking."
+            "desc": "**Stance (Passive):** Ignore non-magical/non-tech difficult terrain; +10 ft speed when moving directly toward a hostile.\n**Technique (1 FP):** On melee hit, spend 1 FP to force a STR save (DC 8 + prof + atk mod). On fail, pushed 10 ft and you can step 5 ft into the vacated space without provoking.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50572,10 +50698,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Soresu Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** +2 AC against ranged weapon/blaster attacks. Moving within hostile reach doesn't provoke opportunity attacks from them.\n**Technique (1 FP):** Reaction when you/ally within 5 ft take kinetic/energy/ion damage: spend 1 FP to reduce damage by Guardian Level + WIS/CHA mod."
+            "desc": "**Stance (Passive):** +2 AC against ranged weapon/blaster attacks. Moving within hostile reach doesn't provoke opportunity attacks from them.\n**Technique (1 FP):** Reaction when you/ally within 5 ft take kinetic/energy/ion damage: spend 1 FP to reduce damage by Guardian Level + WIS/CHA mod.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -50668,10 +50812,28 @@
         "target": "self",
         "effects": [
           {
-            "type": "ieffect",
+            "type": "ieffect2",
             "name": "Vaapad Form",
             "duration": 10,
-            "desc": "**Stance (Passive):** When hostile hits you or forces a save, your next melee attack against them before end of your next turn gains advantage.\n**Technique (1 FP):** Reaction when taking damage from creature within reach: spend 1 FP to reduce damage by WIS/CHA mod, and immediately make a single melee counter-strike."
+            "desc": "**Stance (Passive):** When hostile hits you or forces a save, your next melee attack against them before end of your next turn gains advantage.\n**Technique (1 FP):** Reaction when taking damage from creature within reach: spend 1 FP to reduce damage by WIS/CHA mod, and immediately make a single melee counter-strike.",
+            "buttons": [
+              {
+                "label": "Spend 1 FP (Technique)",
+                "style": "4",
+                "automation": [
+                  {
+                    "type": "counter",
+                    "counter": "Force Points",
+                    "amount": "1",
+                    "errorBehaviour": "raise"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Spent 1 Force Point to use Form Technique!"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
