@@ -32,6 +32,17 @@ class CombatView(disnake.ui.View):
                 if feature.name not in self.valid_modifiers:
                     self.valid_modifiers.append(feature.name)
                 
+            if feature.name in ["Makashi Form", "Makashi Technique"]:
+                if "Makashi Technique" not in self.valid_modifiers: self.valid_modifiers.append("Makashi Technique")
+            if feature.name in ["Juyo Form", "Juyo Technique"]:
+                if "Juyo Technique" not in self.valid_modifiers: self.valid_modifiers.append("Juyo Technique")
+            if feature.name in ["Niman Form", "Niman Technique"]:
+                if "Niman Technique" not in self.valid_modifiers: self.valid_modifiers.append("Niman Technique")
+            if feature.name in ["Shien Form", "Shien Technique"]:
+                if "Shien Technique" not in self.valid_modifiers: self.valid_modifiers.append("Shien Technique")
+            if feature.name in ["Vaapad Form", "Vaapad Technique"]:
+                if "Vaapad Technique" not in self.valid_modifiers: self.valid_modifiers.append("Vaapad Technique")
+                
         atk_obj = self.character.get_attack(self.weapon)
         is_attack = False
         if atk_obj and hasattr(atk_obj, "automation") and atk_obj.automation:
