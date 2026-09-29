@@ -32,9 +32,6 @@ class CombatView(disnake.ui.View):
                 if feature.name not in self.valid_modifiers:
                     self.valid_modifiers.append(feature.name)
                 
-        if self.valid_modifiers:
-            self.add_item(ModifierSelect(self.valid_modifiers))
-            
         atk_obj = self.character.get_attack(self.weapon)
         is_attack = False
         if atk_obj and hasattr(atk_obj, "automation") and atk_obj.automation:
@@ -43,6 +40,9 @@ class CombatView(disnake.ui.View):
                     for sub_effect in effect.effects:
                         if sub_effect.type == "attack":
                             is_attack = True
+
+        if self.valid_modifiers and is_attack:
+            self.add_item(ModifierSelect(self.valid_modifiers))
         
         for child in self.children:
             if isinstance(child, disnake.ui.Button):
