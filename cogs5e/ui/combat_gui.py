@@ -90,13 +90,9 @@ class CombatView(disnake.ui.View):
                     args_str += f"-d \"1d{die}\" "
                 elif mod_name == "Critical Analysis":
                     int_mod = self.character.skills.intelligence.modifier
-                    str_mod = self.character.skills.strength.modifier
-                    dex_mod = self.character.skills.dexterity.modifier
-                    # Finesse uses max of Str or Dex
-                    base_mod = max(str_mod, dex_mod)
-                    bonus = int_mod - base_mod
-                    if bonus != 0:
-                        args_str += f"-b \"{bonus}\" -d \"{bonus}\" "
+                    scholar_levels = sum(c[1] for c in self.character.levels if c[0] == "Scholar")
+                    die = min(12, ((scholar_levels + 3) // 4) * 2 + 4)
+                    args_str += f"-b \"{int_mod}\" -d \"1d{die}\" "
                 elif mod_name == "Kinetic Combat":
                     lvl = 0
                     for c in self.character.levels:
