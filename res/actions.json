@@ -50286,8 +50286,8 @@
           {
             "type": "ieffect",
             "name": "Ataru Form",
-            "duration": 1,
-            "desc": "As a part of the bonus action to adopt this form, you can leap up to 15 feet to an unoccupied space you can see."
+            "duration": 10,
+            "desc": "**Stance (Passive):** Jump distance doubled; standing from prone costs 5 ft; advantage on Acrobatics.\n**Technique (1 FP):** On Attack action, spend 1 FP to leap up to 15 ft to an adjacent unoccupied space without provoking. First melee attack against that target gains +WIS/CHA to hit."
           }
         ]
       }
@@ -50334,8 +50334,8 @@
           {
             "type": "ieffect",
             "name": "Djem So Form",
-            "duration": 1,
-            "desc": "Before the end of your next turn, you can add half your Wisdom or Charisma modifier (your choice, minimum of +1) to one ability check or attack roll you make using Strength."
+            "duration": 10,
+            "desc": "**Stance (Passive):** On melee hit using STR, push target 5 ft if Large or smaller.\n**Technique (1 FP):** Reaction when hit by melee attack: spend 1 FP to reduce damage by STR mod. Next melee attack against them before end of your next turn gains advantage and +STR mod extra damage."
           }
         ]
       }
@@ -50430,8 +50430,8 @@
           {
             "type": "ieffect",
             "name": "Juyo Form",
-            "duration": 1,
-            "desc": "Until the start of your next turn, your critical hit range with weapons increases by 1."
+            "duration": 10,
+            "desc": "**Stance (Passive):** Weapon critical hit range expanded by 1 (e.g., 19-20).\n**Technique (1 FP):** On crit or reducing hostile to 0 HP with melee attack: spend 1 FP to immediately make one additional melee weapon attack as a free action."
           }
         ]
       }
@@ -50454,8 +50454,8 @@
           {
             "type": "ieffect",
             "name": "Makashi Form",
-            "duration": 1,
-            "desc": "Until the start of your next turn, you gain a special reaction. When a creature makes a melee weapon attack against you and misses, you can use this special reaction to make an opportunity attack against that creature."
+            "duration": 10,
+            "desc": "**Stance (Passive):** Hostiles can't gain advantage on you if no other enemy is within 5 ft. On melee miss against you, move 5 ft without provoking.\n**Technique (1 FP):** Reaction when missed by a melee attack: spend 1 FP to make a single melee counter-attack."
           }
         ]
       }
@@ -50478,8 +50478,8 @@
           {
             "type": "ieffect",
             "name": "Niman Form",
-            "duration": 1,
-            "desc": "As a part of the bonus action to adopt this form, if you took the Attack action, you can engage in Double- or Two-Weapon Fighting.   Until the end of your next turn, you can use Wisdom or Charisma instead of Strength or Dexterity for the attack and damage rolls of your melee weapon attacks. You m..."
+            "duration": 10,
+            "desc": "**Stance (Passive):** +1 Force power save DC and +1 Force attack rolls while wielding a lightsaber/vibroweapon.\n**Technique (1 FP):** When you use your action to cast a Force power, spend 1 FP to make one melee weapon attack as a Bonus Action."
           }
         ]
       }
@@ -50502,8 +50502,8 @@
           {
             "type": "ieffect",
             "name": "Shien Form",
-            "duration": 1,
-            "desc": "Before the end of your next turn, you can add half your Wisdom or Charisma modifier (your choice, minimum of +1) to your AC against one attack."
+            "duration": 10,
+            "desc": "**Stance (Passive):** +1 AC against ranged weapon attacks. Can wield a two-handed weapon in one hand with a reverse grip.\n**Technique (1 FP):** Reaction when ranged/blaster attack misses you/ally within 5 ft: spend 1 FP to redirect shot at target within 30 ft (ranged weapon attack using WIS/CHA mod)."
           }
         ]
       }
@@ -50526,8 +50526,8 @@
           {
             "type": "ieffect",
             "name": "Shii-Cho Form",
-            "duration": 1,
-            "desc": "As a part of the bonus action to adopt this form, if you took the Attack action, you can engage in Double- or Two-Weapon Fighting.  Additionally, the first time you hit a Large or smaller creature within 5 feet of you with a weapon attack before the end of your next turn, you can force the target..."
+            "duration": 10,
+            "desc": "**Stance (Passive):** Ignore non-magical/non-tech difficult terrain; +10 ft speed when moving directly toward a hostile.\n**Technique (1 FP):** On melee hit, spend 1 FP to force a STR save (DC 8 + prof + atk mod). On fail, pushed 10 ft and you can step 5 ft into the vacated space without provoking."
           }
         ]
       }
@@ -50574,8 +50574,8 @@
           {
             "type": "ieffect",
             "name": "Soresu Form",
-            "duration": 1,
-            "desc": "The first time you take kinetic, energy, or ion damage from a weapon before the end of your next turn, that damage is reduced by half."
+            "duration": 10,
+            "desc": "**Stance (Passive):** +2 AC against ranged weapon/blaster attacks. Moving within hostile reach doesn't provoke opportunity attacks from them.\n**Technique (1 FP):** Reaction when you/ally within 5 ft take kinetic/energy/ion damage: spend 1 FP to reduce damage by Guardian Level + WIS/CHA mod."
           }
         ]
       }
@@ -50670,8 +50670,8 @@
           {
             "type": "ieffect",
             "name": "Vaapad Form",
-            "duration": 1,
-            "desc": "Once before the start of your next turn, if you would have advantage on a melee weapon attack, you can choose to forgo the advantage. If you do so, you can make one melee weapon attack against the same target (no action required), also without advantage."
+            "duration": 10,
+            "desc": "**Stance (Passive):** When hostile hits you or forces a save, your next melee attack against them before end of your next turn gains advantage.\n**Technique (1 FP):** Reaction when taking damage from creature within reach: spend 1 FP to reduce damage by WIS/CHA mod, and immediately make a single melee counter-strike."
           }
         ]
       }
