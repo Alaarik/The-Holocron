@@ -88,6 +88,15 @@ def _str_attack_advantage(value: AdvantageType):
         return "Attack Advantage: Elven Accuracy"
 
 
+def _str_attack_advantage_against(value: AdvantageType):
+    if value == AdvantageType.ADV:
+        return "Attacks Against: Advantage"
+    elif value == AdvantageType.DIS:
+        return "Attacks Against: Disadvantage"
+    elif value == AdvantageType.ELVEN:
+        return "Attacks Against: Advantage (Elven Accuracy)"
+
+
 def _str_save_adv(value: Set[str]):
     if value.issuperset(STAT_ABBREVIATIONS):
         return "Save Advantage: All"
@@ -159,6 +168,11 @@ class InitPassiveEffect:
 
     attack_advantage: AdvantageType = _PassiveEffect(
         stringifier=_str_attack_advantage,
+        deserializer=lambda data: AdvantageType(data),
+        serializer=lambda data: data.value,
+    )
+    attack_advantage_against: AdvantageType = _PassiveEffect(
+        stringifier=_str_attack_advantage_against,
         deserializer=lambda data: AdvantageType(data),
         serializer=lambda data: data.value,
     )

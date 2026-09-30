@@ -80,15 +80,22 @@ class Attack(Effect):
             b = effect_b
         # Combine args/ieffect advantages - adv/dis (#1552)
         effect_advs = autoctx.caster_active_effects(mapper=lambda effect: effect.effects.attack_advantage, default=[])
+        # Effects on the target that affect attacks against it (e.g. Dodge)
+        target_advs = autoctx.target_active_effects(
+            mapper=lambda effect: effect.effects.attack_advantage_against, default=[]
+        )
         adv = reconcile_adv(
             adv=args.last("adv", type_=bool, ephem=True)
             or any(eadv == AdvantageType.ADV for eadv in effect_advs)
+            or any(eadv == AdvantageType.ADV for eadv in target_advs)
             or explicit_adv == AdvantageType.ADV,
             dis=args.last("dis", type_=bool, ephem=True)
             or any(eadv == AdvantageType.DIS for eadv in effect_advs)
+            or any(eadv == AdvantageType.DIS for eadv in target_advs)
             or explicit_adv == AdvantageType.DIS,
             eadv=args.last("eadv", type_=bool, ephem=True)
             or any(eadv == AdvantageType.ELVEN for eadv in effect_advs)
+            or any(eadv == AdvantageType.ELVEN for eadv in target_advs)
             or explicit_adv == AdvantageType.ELVEN,
         )
 

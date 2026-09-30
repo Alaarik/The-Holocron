@@ -339,5 +339,92 @@ class InitSlashCog(commands.Cog):
             pass
 
 
+    @commands.slash_command(
+        name="dodge", description="Dodge: attacks against you have disadvantage until the start of your next turn."
+    )
+    async def slash_dodge(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        target: str = commands.Param(
+            default="", description="The combatant dodging (defaults to your active character)."
+        )
+    ):
+        await inter.response.defer()
+        from cogs5e.initiative import Combat
+        from cogs5e.initiative.combatant import PlayerCombatant
+        from cogs5e.initiative.effects import InitPassiveEffect, InitiativeEffect
+        from cogs5e.models.character import Character
+        from utils.enums import AdvantageType
+
+        try:
+            combat = await Combat.from_ctx(inter)
+        except Exception:
+            return await inter.followup.send("No active combat found.", ephemeral=True)
+
+        if target:
+            combatant = combat.get_combatant(target)
+            if not combatant:
+                return await inter.followup.send(f"Target {target} not found in combat.", ephemeral=True)
+        else:
+            try:
+                character = await Character.from_ctx(inter, use_global=True, use_guild=True, use_channel=True)
+            except Exception:
+                return await inter.followup.send("You do not have an active character.", ephemeral=True)
+            combatant = next(
+                (
+                    c
+                    for c in combat.get_combatants()
+                    if isinstance(c, PlayerCombatant)
+                    and c.character_id == character.upstream
+                    and c.character_owner == character.owner
+                ),
+                None,
+            )
+            if combatant is None:
+                combatant = combat.get_combatant(character.name)
+            if combatant is None:
+                return await inter.followup.send(f"{character.name} is not in combat.", ephemeral=True)
+
+        if combat.dm_id != inter.author.id and combatant.controller_id != inter.author.id:
+            return await inter.followup.send("You do not have permission to control this combatant.", ephemeral=True)
+
+        if combatant.get_effect("Dodging"):
+            return await inter.followup.send(f"{combatant.name} is already Dodging.", ephemeral=True)
+
+        effect = InitiativeEffect.new(
+            combat,
+            combatant,
+            name="Dodging",
+            passive_effects=InitPassiveEffect(
+                save_adv={"dex"},
+                attack_advantage_against=AdvantageType.DIS,
+            ),
+            duration=1,
+            desc="Attack rolls against you have disadvantage, " "and you make Dexterity saving throws with advantage.",
+        )
+        combatant.add_effect(effect)
+        await combat.commit(inter)
+        await inter.followup.send(f"{combatant.name} is Dodging until the start of their next turn.")
+
+        try:
+            msg = await inter.channel.fetch_message(combat.summary_message_id)
+            await msg.edit(content=combat.get_summary(), view=CombatDashboardView(self.bot))
+        except:
+            pass
+
+    @slash_dodge.autocomplete("target")
+    async def dodge_target_auto(self, inter: disnake.ApplicationCommandInteraction, user_input: str):
+        from cogs5e.initiative import Combat
+
+        try:
+            combat = await Combat.from_ctx(inter)
+            if not combat:
+                return []
+        except:
+            return []
+        choices = [c.name for c in combat.combatants if user_input.lower() in c.name.lower()]
+        return choices[:25]
+
+
 def setup(bot):
     bot.add_cog(InitSlashCog(bot))

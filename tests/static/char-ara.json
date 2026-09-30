@@ -98,20 +98,12 @@
       "value": 5,
       "prof": 0.5
     },
-    "arcana": {
-      "value": 7,
-      "prof": 1
-    },
     "athletics": {
       "value": 4,
       "prof": 0.5
     },
     "deception": {
       "value": 9,
-      "prof": 0.5
-    },
-    "history": {
-      "value": 4,
       "prof": 0.5
     },
     "initiative": {
@@ -129,6 +121,10 @@
     "investigation": {
       "value": 4,
       "prof": 0.5
+    },
+    "lore": {
+      "value": 7,
+      "prof": 1
     },
     "medicine": {
       "value": 5,
@@ -150,7 +146,7 @@
       "value": 9,
       "prof": 0.5
     },
-    "religion": {
+    "piloting": {
       "value": 4,
       "prof": 0.5
     },
@@ -164,6 +160,10 @@
     },
     "survival": {
       "value": 5,
+      "prof": 0.5
+    },
+    "technology": {
+      "value": 4,
       "prof": 0.5
     },
     "strength": {
