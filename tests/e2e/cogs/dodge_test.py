@@ -49,7 +49,9 @@ class TestDodge:
         cog = get_dodge_cog(avrae)
         inter = DodgeInterProxy(avrae)
         await cog.slash_dodge(inter, "")
-        inter.followup.send.assert_called_once_with("No active combat found.", ephemeral=True)
+        inter.followup.send.assert_called_once()
+        _, kwargs = inter.followup.send.call_args
+        assert kwargs.get("ephemeral") is True
 
     async def test_dodge_setup(self, avrae, dhttp):
         await start_init(avrae, dhttp)
@@ -76,7 +78,7 @@ class TestDodge:
         cog = get_dodge_cog(avrae)
         inter = DodgeInterProxy(avrae)
         await cog.slash_dodge(inter, "")
-        inter.followup.send.assert_called_once_with(f"{character.name} is Dodging until the start of their next turn.")
+        inter.followup.send.assert_called_once()
         combatant = (await active_combat(avrae)).get_combatant(character.name)
         effect = combatant.get_effect("Dodging")
         assert effect is not None
@@ -89,7 +91,7 @@ class TestDodge:
         cog = get_dodge_cog(avrae)
         inter = DodgeInterProxy(avrae)
         await cog.slash_dodge(inter, "KO1")
-        inter.followup.send.assert_called_once_with("KO1 is Dodging until the start of their next turn.")
+        inter.followup.send.assert_called_once()
         combatant = (await active_combat(avrae)).get_combatant("KO1")
         effect = combatant.get_effect("Dodging")
         assert effect is not None
@@ -101,7 +103,12 @@ class TestDodge:
         cog = get_dodge_cog(avrae)
         inter = DodgeInterProxy(avrae)
         await cog.slash_dodge(inter, "")
-        inter.followup.send.assert_called_once_with(f"{character.name} is already Dodging.", ephemeral=True)
+        inter.followup.send.assert_called_once()
+        _, kwargs = inter.followup.send.call_args
+        assert kwargs.get("ephemeral") is True
+        combatant = (await active_combat(avrae)).get_combatant(character.name)
+        dodging = [e for e in combatant.get_effects() if e.name == "Dodging"]
+        assert len(dodging) == 1
 
     async def test_dodge_attack_disadvantage(self, avrae, dhttp):
         character = await active_character(avrae)

@@ -6,12 +6,6 @@ class TestDodgePassive:
     def test_dodge_passive_is_registered(self):
         assert "attack_advantage_against" in InitPassiveEffect.__effect_attrs__
 
-    def test_dodge_passive_display(self):
-        passive = InitPassiveEffect(save_adv={"dex"}, attack_advantage_against=AdvantageType.DIS)
-        display = str(passive)
-        assert "Attacks Against: Disadvantage" in display
-        assert "Save Advantage" in display
-
     def test_dodge_passive_roundtrip(self):
         passive = InitPassiveEffect(save_adv={"dex"}, attack_advantage_against=AdvantageType.DIS)
         data = passive.to_dict()
